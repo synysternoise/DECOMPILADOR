@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+def buildNumber = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int
+
+android {
+    namespace 'br.renan.crescerseco'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'br.renan.crescerseco'
+        minSdk 26
+        targetSdk 34
+        versionCode buildNumber
+        versionName "1.${buildNumber}"
+    }
+
+    // Chave fixa no repositório: toda versão nova instala por cima da anterior sem apagar os dados.
+    signingConfigs {
+        app {
+            storeFile file('../keystore/app.jks')
+            storePassword 'crescerseco'
+            keyAlias 'app'
+            keyPassword 'crescerseco'
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.app
+        }
+        release {
+            signingConfig signingConfigs.app
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+}
