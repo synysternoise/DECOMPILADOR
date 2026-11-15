@@ -1,10 +1,15 @@
 package br.renan.crescerseco;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,6 +19,29 @@ import android.webkit.WebViewClient;
 public class MainActivity extends Activity {
     private static final int NIGHT = 0xFF0B0D13;
     private WebView web;
+
+    /** Ponte chamada pela página (window.Android) para ligar e desligar os lembretes de sono. */
+    private class Bridge {
+        @JavascriptInterface
+        public void setReminders(final boolean on, final String wind, final String bed) {
+            getSharedPreferences(Reminder.PREFS, Context.MODE_PRIVATE).edit()
+                    .putBoolean("on", on)
+                    .putString("wind", wind)
+                    .putString("bed", bed)
+                    .apply();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (on && Build.VERSION.SDK_INT >= 33
+                            && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+                    }
+                    Reminder.schedule(MainActivity.this);
+                }
+            });
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +57,7 @@ public class MainActivity extends Activity {
         st.setJavaScriptEnabled(true);
         st.setDomStorageEnabled(true);
         st.setMediaPlaybackRequiresUserGesture(false);
+        web.addJavascriptInterface(new Bridge(), "Android");
         web.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {

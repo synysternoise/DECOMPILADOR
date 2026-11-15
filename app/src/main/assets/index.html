@@ -114,14 +114,20 @@ nav>*{pointer-events:auto}
 .tb.go .n{color:var(--good)}
 .tb .lb{font-size:13px;line-height:1.25;color:var(--muted)}
 .tb button{padding:8px 12px;font-size:13px}
-#nav{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;width:100%;max-width:536px;padding:6px;border-radius:26px;background:rgba(20,24,34,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 12px 34px -12px #000}
+#nav{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;width:100%;max-width:536px;padding:6px;border-radius:26px;background:rgba(20,24,34,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 12px 34px -12px #000}
 #nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font:600 11px var(--body);color:var(--muted);text-decoration:none;padding:8px 2px 7px;border-radius:20px}
 #nav a svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #nav a.on{background:var(--raise);color:var(--accent)}
+.past{opacity:.42}
+.breath{display:grid;place-items:center;gap:14px;padding:14px 0 6px}
+#brc{width:128px;height:128px;border-radius:50%;background:var(--dawn);transform:scale(.5);transition:transform .25s linear}
+#brl{font:700 20px var(--display)}
+.kpi .n.low{color:var(--warn)} .kpi .n.fine{color:var(--good)}
+a.inl{color:var(--accent)}
 #sync{font-size:12px;color:var(--muted);min-height:16px}
 @media (max-width:360px){header.hero{grid-template-columns:100px 1fr}.ring,.ring svg{width:100px;height:100px}h1{font-size:34px}.exh{grid-template-columns:104px 1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-</style></head><body><div id="root"></div><nav><div id="tbar"></div><div id="nav"></div></nav><script id="state" type="application/json">{"rev":1794704210900,"days":{"2026-11-14":{"type":"t","c":{"acordar":false,"passos":false},"w":"B"}},"loads":{"a1":{"kg":"36.4","i":0},"a2":{"kg":"50","i":0},"a3":{"kg":"30","i":0},"a4":{"kg":"36","i":0},"a5":{"kg":"7/9","i":0},"a6":{"kg":"36","i":0},"a7":{"kg":"7","i":0},"a8":{"kg":"","i":0},"b1":{"kg":"45","i":0},"b2":{"kg":"36","i":0},"b3":{"kg":"36","i":0},"b4":{"kg":"40.9","i":0},"b5":{"kg":"8","i":0},"b6":{"kg":"36","i":0},"b7":{"kg":"","i":0}},"meas":[],"rot":0}</script><script id="app">
+</style></head><body><div id="root"></div><nav><div id="tbar"></div><div id="nav"></div></nav><script id="state" type="application/json">{"rev":0,"days":{},"loads":{},"meas":[],"sleep":{},"rot":0}</script><script id="app">
 (function(){
 var HEAD='<!DOCTYPE html>\n<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plano Crescer Seco</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">';
 var KEY='plano-crescer-seco-v1';
@@ -267,7 +273,7 @@ var state;
 try{state=JSON.parse($('state').textContent)}catch(e){state={rev:0,days:{},loads:{},meas:[],rot:0}}
 var dirty=false;
 try{var loc=JSON.parse(localStorage.getItem(KEY)||'null');if(loc&&loc.rev>state.rev){state=loc;dirty=true}}catch(e){}
-state.days=state.days||{};state.loads=state.loads||{};state.meas=state.meas||[];
+state.days=state.days||{};state.loads=state.loads||{};state.meas=state.meas||[];state.sleep=state.sleep||{};
 
 function iso(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 var TODAY=iso(new Date());
@@ -346,6 +352,7 @@ function startT(sec,label){
 function stopT(){ses.end=0;sesSave();killBeeps();tick()}
 var tkey='';
 function tick(){
+ brTick();
  var tb=$('tbar');if(!tb)return;var now=Date.now(),el=$('elapsed');
  if(el&&ses.t0)el.textContent='Tempo de treino '+fmt((now-ses.t0)/1000);
  if(!ses.end){if(tkey){tkey='';tb.innerHTML=''}return}
@@ -365,11 +372,11 @@ setInterval(tick,250);
 document.addEventListener('visibilitychange',function(){if(document.hidden){clearTimeout(timer);push()}});
 
 /* ---------- telas ---------- */
-var TABS=[['hoje','Hoje'],['treino','Treino'],['comida','Comida'],['medidas','Medidas'],['guia','Guia']];
+var TABS=[['hoje','Hoje'],['treino','Treino'],['comida','Comida'],['sono','Sono'],['medidas','Medidas'],['guia','Guia']];
 var NAMES=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],FULL=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
 function tab(){var h=location.hash.replace('#','');return TABS.some(function(t){return t[0]===h})?h:'hoje'}
 var selW=null,selD=null;
-var ICON={hoje:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/>',treino:'<path d="M3 9v6M6.5 6.5v11M17.5 6.5v11M21 9v6M6.5 12h11"/>',comida:'<path d="M7 3v7a2 2 0 0 0 4 0V3M9 12v9M17 3c-2 2-2.5 5-2.5 8H17v10"/>',medidas:'<path d="M4 16.5L16.5 4l3.5 3.5L7.5 20zM9 11.5l1.5 1.5M12 8.5l1.5 1.5M6.5 14.5l1 1"/>',guia:'<path d="M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3zM9 9h5M9 12.5h5"/>'};
+var ICON={sono:'<path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/>',hoje:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/>',treino:'<path d="M3 9v6M6.5 6.5v11M17.5 6.5v11M21 9v6M6.5 12h11"/>',comida:'<path d="M7 3v7a2 2 0 0 0 4 0V3M9 12v9M17 3c-2 2-2.5 5-2.5 8H17v10"/>',medidas:'<path d="M4 16.5L16.5 4l3.5 3.5L7.5 20zM9 11.5l1.5 1.5M12 8.5l1.5 1.5M6.5 14.5l1 1"/>',guia:'<path d="M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3zM9 9h5M9 12.5h5"/>'};
 
 function vHoje(){
  var d=dayOf(TODAY),w=letterFor(TODAY),it=itemsFor(d,w,TODAY),done=0;
@@ -382,6 +389,8 @@ function vHoje(){
  var C=2*Math.PI*52,fr=done/it.length;
  var h='<header class="top hero"><div class="ring"><svg viewBox="0 0 124 124" role="img" aria-label="'+done+' de '+it.length+' itens feitos"><defs><linearGradient id="dawn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb23d"/><stop offset="1" stop-color="#ff4f7b"/></linearGradient></defs><circle cx="62" cy="62" r="52" fill="none" stroke="#1c2130" stroke-width="11"/><circle cx="62" cy="62" r="52" fill="none" stroke="url(#dawn)" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+(C*fr).toFixed(1)+' '+C.toFixed(1)+'"'+(done?'':' opacity="0"')+'/></svg><div class="c"><b>'+done+'/'+it.length+'</b><span>'+(done===it.length?'dia fechado':'feito hoje')+'</span></div></div><div><span class="eyebrow">'+dt.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+'</span><h1>'+(d.type==='t'?'Treino '+w:'Descanso')+'</h1><p class="muted small">'+(d.type==='t'?W[w].nome:'Recuperar, comer bem e dormir cedo')+'</p><span id="sync">'+esc(syncMsg)+'</span></div></header>';
  h+='<div class="stack"><div class="seg"><button data-type="t" class="'+(d.type==='t'?'on':'')+'">Dia de treino</button><button data-type="d" class="'+(d.type==='d'?'on':'')+'">Dia de descanso</button></div>';
+ var ss=slStats(),sa=slAdvice(ss);
+ if(ss.last!=null&&sa[0]==='warn')h+='<div class="card verdict warn small">'+sa[1]+' <a class="inl" href="#sono">Ver sono</a></div>';
  h+='<div class="week">'+wk+'</div></div><h2>Roteiro do dia</h2><div class="stack">';
  it.forEach(function(i){h+='<button class="item'+(d.c[i[0]]?' done':'')+'" data-chk="'+i[0]+'" aria-pressed="'+(!!d.c[i[0]])+'"><span class="t">'+i[1]+'</span><span><span class="ti">'+esc(i[2])+'</span><span class="su">'+esc(i[3])+'</span></span><span class="box">✓</span></button>'});
  return h+'</div>';
@@ -437,6 +446,75 @@ function vComida(){
  h+='<h2>Trocas que valem igual</h2><div class="card stack small"><p><b>150 g de frango</b> = 150 g de patinho ou tilápia = 1 lata e meia de atum = 5 ovos.</p><p><b>150 g de arroz</b> = 200 g de batata ou mandioca = 150 g de macarrão = 3 fatias de pão.</p><p><b>1 punhado de castanhas</b> = 1 colher de sopa de pasta de amendoim.</p></div>';
  h+='<h2>O que faz a barriga</h2><div class="card"><ul class="small"><li>Bebida com caloria: refrigerante, suco, cerveja. Troque por água, chá e café sem açúcar.</li><li>Beliscar sem contar: pão, biscoito e doce entre as refeições.</li><li>Fritura e molho gordo no almoço do restaurante.</li><li>Dormir pouco aumenta a fome no dia seguinte.</li><li>Uma refeição livre por semana, não um dia livre.</li></ul></div>';
  return h;
+}
+/* ---------- sono: state.sleep[data em que acordou]={b:'20:20',w:'03:10',q:1..3,n:minutos de cochilo} ---------- */
+var GOAL=420,brT=0;
+function hm(x){var a=String(x).split(':');return (+a[0])*60+(+a[1])}
+function fh(min){var m=Math.max(0,Math.round(min));return Math.floor(m/60)+'h'+('0'+m%60).slice(-2)}
+function hhmm(d){return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)}
+function slTotal(e){if(!e||!e.b||!e.w)return null;var d=hm(e.w)-hm(e.b);if(d<=0)d+=1440;return d+(e.n||0)}
+function slStats(){
+ var w=[],d=new Date(),n=0,debt=0,sum=0,bs=0;
+ for(var i=6;i>=0;i--){var x=new Date(d);x.setDate(d.getDate()-i);var k=iso(x),e=state.sleep[k],t=slTotal(e);w.push({k:k,wd:x.getDay(),min:t});
+  if(t!=null){n++;sum+=t;debt+=Math.max(0,GOAL-t);var b=hm(e.b);if(b<720)b+=1440;bs+=b}}
+ var keys=Object.keys(state.sleep).filter(function(k){return slTotal(state.sleep[k])!=null}).sort(),lk=keys[keys.length-1];
+ return {week:w,n:n,debt:debt,avg:n?sum/n:null,bed:n?(bs/n)%1440:null,last:lk?slTotal(state.sleep[lk]):null,lastK:lk};
+}
+function slAdvice(st){
+ if(st.last==null)return ['','Toque em Vou dormir agora quando deitar e em Acordei quando levantar. Com 3 noites registradas o app começa a ajustar o treino pelo seu sono.'];
+ if(st.lastK===TODAY&&st.last<300)return ['warn','Menos de 5 horas esta noite. Não treine pesado hoje: faça o treino leve (mesmas cargas, 2 séries) ou troque por descanso, e cochile no fretado.'];
+ if(st.debt>=GOAL)return ['warn','Você deve mais de uma noite inteira de sono nesta semana. Transforme o próximo treino em descanso e deite às 20:00 por três noites.'];
+ if(st.lastK===TODAY&&st.last<360)return ['warn','Noite curta. Hoje repita as cargas do último treino, sem tentar meta nova, e cochile 20 a 30 minutos no fretado.'];
+ if(st.avg>=GOAL)return ['good','Média de '+fh(st.avg)+' por noite nesta semana. É com esse sono que a carga sobe e a barriga desce.'];
+ return ['','Média de '+fh(st.avg)+' por noite, abaixo da meta de 7 horas. Cada 30 minutos mais cedo na cama já ajuda.'];
+}
+function slChart(w){
+ var h='<svg viewBox="0 0 300 134" role="img" aria-label="Horas de sono nas últimas 7 noites">',gy=(106-GOAL/540*90).toFixed(1);
+ w.forEach(function(x,i){var bx=14+i*40;
+  if(x.min!=null){var bh=Math.min(x.min,540)/540*90,c=x.min>=GOAL?'var(--good)':(x.min>=360?'var(--accent)':'var(--warn)');
+   h+='<rect x="'+bx+'" y="'+(106-bh).toFixed(1)+'" width="30" height="'+bh.toFixed(1)+'" rx="7" fill="'+c+'"/><text x="'+(bx+15)+'" y="'+(100-bh).toFixed(1)+'" text-anchor="middle" font-size="10" fill="var(--text)">'+fh(x.min)+'</text>';}
+  else h+='<rect x="'+bx+'" y="100" width="30" height="6" rx="3" fill="var(--line)"/>';
+  h+='<text x="'+(bx+15)+'" y="124" text-anchor="middle" font-size="11" fill="var(--muted)">'+NAMES[x.wd]+'</text>';});
+ return h+'<line x1="6" x2="294" y1="'+gy+'" y2="'+gy+'" stroke="var(--muted)" stroke-dasharray="3 4"/><text x="294" y="'+(gy-4)+'" text-anchor="end" font-size="10" fill="var(--muted)">meta 7h</text></svg>';
+}
+function vSono(){
+ var st=slStats(),adv=slAdvice(st),now=new Date(),nm=now.getHours()*60+now.getMinutes();
+ var tm=new Date();tm.setDate(tm.getDate()+1);var bed=(tm.getDay()===0||tm.getDay()===4)?'21:00':'20:15';
+ var te=state.sleep[TODAY];
+ var h='<header class="top"><span class="eyebrow">Meta: 7 horas por noite</span><h1>Sono</h1><p class="muted">É dormindo que o músculo cresce. Com pouco sono a fome aumenta e a gordura vai pra barriga.</p><span id="sync">'+esc(syncMsg)+'</span></header>';
+ h+='<div class="kpis"><div class="card kpi"><span class="muted small">Última noite</span><div class="n '+(st.last==null?'':(st.last>=GOAL?'fine':(st.last<360?'low':'')))+'">'+(st.last==null?'–':fh(st.last))+'</div><span class="small muted">'+(st.lastK?'acordou em '+dm(st.lastK):'sem registro')+'</span></div><div class="card kpi"><span class="muted small">Dívida em 7 dias</span><div class="n '+(st.debt>=GOAL?'low':'')+'">'+(st.n?fh(st.debt):'–')+'</div><span class="small muted">'+st.n+' de 7 noites registradas</span></div></div>';
+ h+='<div class="card verdict '+adv[0]+'" style="margin-top:10px">'+adv[1]+'</div>';
+ h+='<h2>Registrar</h2><div class="card stack">';
+ if(state.sl&&state.sl.b)h+='<p>Deitou às <b>'+hhmm(new Date(state.sl.b))+'</b>. Bom descanso.</p><div class="row"><button class="on" data-swake="1">Acordei</button><button data-scancel="1">Cancelar</button></div>';
+ else h+='<div class="row"><button class="on" data-sbed="1">Vou dormir agora</button></div><p class="muted small">Toque ao apagar a luz. De manhã, toque em Acordei e o app calcula a noite.</p>';
+ if(te&&slTotal(te)!=null){h+='<p class="small">Hoje: '+esc(te.b)+' às '+esc(te.w)+(te.n?' + '+te.n+' min de cochilo':'')+'. Como foi a noite?</p><div class="seg">';
+  [[1,'Ruim'],[2,'Regular'],[3,'Boa']].forEach(function(q){h+='<button data-sq="'+q[0]+'" class="'+(te.q===q[0]?'on':'')+'">'+q[1]+'</button>'});h+='</div>';}
+ h+='<details><summary>Lançar ou corrigir à mão</summary><div class="stack" style="margin-top:10px"><label>Dia em que acordou<input id="s-d" type="date" value="'+TODAY+'"></label><div class="grid2"><label>Deitou<input id="s-b" type="time" value="'+(te&&te.b||'20:15')+'"></label><label>Acordou<input id="s-w" type="time" value="'+(te&&te.w||'03:10')+'"></label></div><label>Cochilo no dia (min)<input id="s-n" inputmode="numeric" value="'+(te&&te.n||'')+'"></label><button id="s-add">Salvar noite</button></div></details></div>';
+ h+='<h2>Últimas 7 noites</h2><div class="card">'+slChart(st.week)+(st.bed!=null?'<p class="muted small" style="margin-top:8px">Você tem deitado em média às '+hhmm(new Date(2026,0,1,0,Math.round(st.bed)))+'. Variar menos de 1 hora entre os dias melhora a qualidade do sono.</p>':'')+'</div>';
+ h+='<h2>Hoje à noite</h2><div class="card stack"><p><b>'+((nm>=180&&nm<hm(bed))?'Faltam '+fh(hm(bed)-nm)+' para deitar':'Hora de estar na cama')+'</b></p>';
+ [['12:00','Última cafeína','Café, chá verde e pré-treino com cafeína só até o meio-dia'],['15:00','Último chá diurético','Hibisco e cavalinha depois disso fazem você levantar de madrugada'],['18:45','Jantar','Pronto na geladeira, pra comer assim que chegar'],['19:30','Desligar','Telas fora, magnésio, luz baixa, banho morno'],[bed,'Na cama','Quarto escuro e fresco, celular longe']].forEach(function(x){
+  var ps=nm>=hm(x[0])||nm<180;h+='<div class="meal'+(ps?' past':'')+'"><span class="t">'+x[0]+'</span><div><b>'+x[1]+'</b><div class="muted small">'+x[2]+'</div></div></div>'});
+ h+='</div>';
+ if(window.Android&&window.Android.setReminders)h+='<div class="card stack" style="margin-top:10px"><p><b>Lembretes no celular</b></p><p class="muted small">Aviso às 19:30 pra desligar as telas e às 20:15 pra deitar.</p><div class="row"><button data-rem="1" class="'+(state.rem?'on':'')+'">'+(state.rem?'Lembretes ligados':'Ligar lembretes')+'</button></div></div>';
+ h+='<h2>Respiração pra pegar no sono</h2><div class="card stack">';
+ if(brT)h+='<div class="breath"><div id="brc"></div><span id="brl">Prepare-se</span></div><div class="row"><button data-brstop="1">Parar</button></div>';
+ else h+='<p class="small muted">Técnica 4-7-8, 2 minutos, já deitado: inspire pelo nariz por 4 segundos, segure 7, solte pela boca em 8.</p><div class="row"><button data-breath="1">Começar</button></div>';
+ h+='</div><h2>Se você atrasar</h2><div class="card"><table><tr><th>Deitou</th><th>Sono</th><th>Treino das 03:40</th></tr><tr><td>20:15</td><td>6h55</td><td>Normal</td></tr><tr><td>21:00</td><td>6h10</td><td>Normal, sem meta nova se acordar cansado</td></tr><tr><td>22:00</td><td>5h10</td><td>Leve: mesmas cargas, 2 séries</td></tr><tr><td>23:00</td><td>4h10</td><td>Não treine. Durma mais e descanse</td></tr></table></div>';
+ var keys=Object.keys(state.sleep).sort().reverse().slice(0,14);
+ if(keys.length){h+='<h2>Histórico</h2><div class="card"><table><tr><th>Acordou</th><th>Deitou</th><th>Total</th><th></th></tr>';
+  keys.forEach(function(k){var e=state.sleep[k],t=slTotal(e);h+='<tr><td>'+dm(k)+' '+esc(e.w||'')+'</td><td>'+esc(e.b||'–')+'</td><td>'+(t!=null?fh(t):'–')+'</td><td><button data-sdel="'+k+'" aria-label="Apagar noite">Apagar</button></td></tr>'});
+  h+='</table></div>';}
+ h+='<h2>O que mais ajuda</h2><div class="card"><ul class="small"><li>Deitar e acordar no mesmo horário, com no máximo 1 hora de diferença no fim de semana.</li><li>Luz forte logo ao acordar e luz baixa depois das 19:00.</li><li>Cochilo de 20 a 30 minutos no fretado. Mais que isso, só até as 15:00.</li><li>Álcool dá sono mas piora a noite. Evite nas vésperas de treino.</li><li>Cama é pra dormir. Celular carrega fora do quarto.</li></ul></div><p class="muted small" style="margin-top:14px">O app registra o que você informa. Ele não mede o sono sozinho pelo movimento ou pelo som.</p>';
+ return h;
+}
+function brTick(){
+ var el=$('brl');if(!el||!brT)return;var t=(Date.now()-brT)/1000;
+ if(t>114){brT=0;render();return}
+ var ph=t%19,sc,tx;
+ if(ph<4){tx='Inspire pelo nariz · '+Math.ceil(4-ph);sc=.5+.5*ph/4}
+ else if(ph<11){tx='Segure · '+Math.ceil(11-ph);sc=1}
+ else{tx='Solte pela boca · '+Math.ceil(19-ph);sc=1-.5*(ph-11)/8}
+ el.textContent=tx;$('brc').style.transform='scale('+sc.toFixed(3)+')';
 }
 function verdict(){
  var m=state.meas.slice().sort(function(a,b){return a.d<b.d?-1:1});
@@ -539,7 +617,7 @@ function vMedidas(){
 function vGuia(){
  var b=function(t,l){return '<h2>'+t+'</h2><div class="card"><ul class="small">'+l.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'};
  return '<header class="top"><span class="eyebrow">As regras do plano</span><h1>Guia</h1></header>'+
- b('Sono, o ponto mais fraco hoje',['Com 5 a 6 horas o corpo constrói menos músculo e guarda mais gordura na barriga. Nenhum suplemento compensa isso.','Meta: na cama às 20:15 nos dias de treino. São quase 7 horas até as 03:10.','Você chega às 18:30: jantar pronto às 18:45, banho, telas fora às 19:30, quarto escuro e fresco.','Cochile no fretado, na ida ou na volta. 20 a 30 minutos por dia fazem diferença.','Semana com menos de 6 horas por noite: faça 4 treinos em vez de 5.'])+
+ b('Sono, o ponto mais fraco hoje',['Com 5 a 6 horas o corpo constrói menos músculo e guarda mais gordura na barriga. Nenhum suplemento compensa isso.','Meta: na cama às 20:15 nos dias de treino. São quase 7 horas até as 03:10.','Você chega às 18:30: jantar pronto às 18:45, banho, telas fora às 19:30, quarto escuro e fresco.','Cochile no fretado, na ida ou na volta. 20 a 30 minutos por dia fazem diferença.','Registre as noites na aba Sono. Ela mostra a dívida da semana e avisa quando aliviar o treino.','Semana com menos de 6 horas por noite: faça 4 treinos em vez de 5.'])+
  b('Suplementos',['<b>Creatina:</b> 5 g todo dia, inclusive no descanso. É o que mais funciona da sua lista.','<b>Whey:</b> 1 dose de 30 g por dia. É comida, serve pra fechar a proteína.','<b>BCAA:</b> pode terminar o pote e não comprar de novo. Com 165 g de proteína por dia ele não acrescenta nada.','<b>Magnésio:</b> à noite, perto das 19:30. Ajuda a relaxar pra dormir.','<b>The Pump Father:</b> não tem cafeína, então não atrapalha seu sono. Dá mais pump e um pouco de fôlego nas séries longas; o formigamento na pele vem da beta-alanina e é inofensivo. É opcional: o crescimento vem de carga, proteína e sono. Uma dose de 10 g ao acordar.'])+
  b('Chás',['Chá verde e gengibre: de manhã, até o meio-dia. Chá verde tem cafeína.','Hibisco e cavalinha são diuréticos: tiram água, não gordura. A barriga não some com eles.','Último chá diurético até as 15h, pra não acordar de noite pra urinar.','Cavalinha: use por algumas semanas e faça pausas, não todo dia o ano inteiro.','Sempre sem açúcar. No treino, água.'])+
  b('Cardio e movimento',['15 minutos depois da musculação em todo dia de treino. Não precisa de um dia só de cardio.','8 mil passos por dia. Isso gasta mais que o cardio em si.','Abdominal fortalece, mas não queima a gordura da barriga. Quem tira é a comida.'])+
@@ -547,7 +625,7 @@ function vGuia(){
  '<p class="muted small" style="margin-top:18px">Plano geral de treino e alimentação, feito com os dados que você passou. Dor articular, tontura ou pressão alterada pedem avaliação médica; um nutricionista pode afinar as quantidades com exames.</p>';
 }
 function render(){
- var t=tab(),v={hoje:vHoje,treino:vTreino,comida:vComida,medidas:vMedidas,guia:vGuia}[t];
+ var t=tab(),v={hoje:vHoje,treino:vTreino,comida:vComida,sono:vSono,medidas:vMedidas,guia:vGuia}[t];
  $('root').innerHTML=v();
  if(t==='medidas')initMan();
  tick();
@@ -563,6 +641,8 @@ $('root').addEventListener('click',function(ev){
   else startT(restOf(id),n+1<3?e[1]+': descanso antes da série '+(n+2):e[1]+' concluído: troca de exercício');
   render();return}
  if(d.cardio){startT(900,'Cardio de 15 min');return}
+ if(d.breath){brT=Date.now();render();return}
+ if(d.brstop){brT=0;render();return}
  if(d.chk){day.c[d.chk]=!day.c[d.chk];if(d.chk==='treino'&&day.c.treino)day.w=letterFor(TODAY)}
  else if(d.type){if(day.type===d.type)return;day.type=d.type;day.c={}}
  else if(d.w){selW=d.w;if(!day.c.treino){day.w=d.w}else{render();return}}
@@ -571,6 +651,14 @@ $('root').addEventListener('click',function(ev){
   s.fails=0;s.last=TODAY;s.res='hit'}
  else if(d.miss){e=findEx(d.miss);s=exS(e);s.prev={i:s.i,kg:s.kg,fails:s.fails||0};s.fails=(s.fails||0)+1;s.last=TODAY;s.res='miss'}
  else if(d.undo){e=findEx(d.undo);s=exS(e);if(s.prev){if(s.prev.kg!==s.kg&&s.hist)s.hist.pop();s.i=s.prev.i;s.kg=s.prev.kg;s.fails=s.prev.fails}delete s.prev;delete s.last;delete s.res}
+ else if(d.sbed){state.sl={b:Date.now()}}
+ else if(d.scancel){delete state.sl}
+ else if(d.swake){var se=state.sleep[TODAY]||{};se.b=hhmm(new Date(state.sl.b));se.w=hhmm(new Date());state.sleep[TODAY]=se;delete state.sl}
+ else if(d.sq){if(state.sleep[TODAY])state.sleep[TODAY].q=+d.sq}
+ else if(b.id==='s-add'){var sd=$('s-d').value||TODAY,sb=$('s-b').value,sw=$('s-w').value;if(!sb||!sw)return;
+  var so=state.sleep[sd]||{};so.b=sb;so.w=sw;var sn=num($('s-n').value);if(sn!==null)so.n=Math.round(sn);else delete so.n;state.sleep[sd]=so}
+ else if(d.sdel){delete state.sleep[d.sdel]}
+ else if(d.rem){state.rem=!state.rem;try{window.Android.setReminders(!!state.rem,'19:30','20:15')}catch(x){}}
  else if(b.id==='m-add'){var dt=$('m-d').value||TODAY,ent=null,any=false;
   state.meas.forEach(function(x){if(x.d===dt)ent=x});if(!ent)ent={d:dt};
   PARTS.forEach(function(p){var v=num($('m-'+p[0]).value);if(v!==null){ent[p[0]]=v;any=true}});
@@ -588,6 +676,7 @@ $('root').addEventListener('change',function(ev){
 $('root').addEventListener('focusin',function(ev){var p=ev.target.dataset&&ev.target.dataset.part;if(p)selP=p});
 window.addEventListener('hashchange',function(){selW=null;selD=null;render();window.scrollTo(0,0)});
 tkey='';render();
+try{if(state.rem&&window.Android&&window.Android.setReminders)window.Android.setReminders(true,'19:30','20:15')}catch(e){}
 try{var y=sessionStorage.getItem(KEY+'-y');if(y){sessionStorage.removeItem(KEY+'-y');window.scrollTo(0,+y)}}catch(e){}
 })();
 </script></body></html>
