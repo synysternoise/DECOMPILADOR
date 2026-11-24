@@ -111,6 +111,16 @@ legend { font-weight: 600; padding: 0 .3rem; }
 .d-block { display: block; }
 #aviso-global:not(:empty) { margin-top: .5rem; }
 .nowrap { white-space: nowrap; }
+.filtros-det { margin-top: .25rem; }
+.filtros-det > summary { cursor: pointer; font-weight: 600; padding: .3rem 0; min-height: 32px; }
+.filtros-det .filtros { margin-top: .4rem; }
+.soft { color: var(--suave); font-weight: 400; }
+@media (max-width: 900px) { .lista { max-height: none; } .ficha { position: static; max-height: none; } }
+.resumo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem .75rem; background: var(--destaque-fundo); border: 1px solid #b6d3f2; border-radius: 6px; padding: .6rem .75rem; margin: .5rem 0; }
+.resumo .larga { grid-column: 1 / -1; }
+.resumo .rot { display: block; font-size: .8rem; color: var(--suave); }
+.resumo b { font-size: 1.05rem; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .resumo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .resumo > div:first-child { grid-column: 1 / -1; } }
 </style>
 </head>
 <body>
@@ -126,17 +136,20 @@ legend { font-weight: 600; padding: 0 .3rem; }
     <h2 id="t-busca" class="vh">Busca e filtros</h2>
     <form id="form-busca" role="search" autocomplete="off">
       <div class="campo-busca">
-        <label for="busca">Buscar por PN novo, CDPL, referência E2, descrição ou topo</label>
+        <label for="busca">PN novo ou CDPL <span class="soft">(também E2, descrição ou topo)</span></label>
         <input id="busca" type="search" spellcheck="false" aria-describedby="dica-busca">
-        <p id="dica-busca" class="dica">Maiúsculas, espaços e hífens são ignorados na busca (ex.: 17150557021 encontra 171-50557-021). Correspondências exatas de PN/CDPL aparecem primeiro.</p>
+        <p id="dica-busca" class="dica">Pode digitar sem hífens ou espaços (17150557021 encontra 171-50557-021). Se houver uma única correspondência exata, a ficha abre sozinha.</p>
       </div>
-      <div class="filtros">
-        <label>Kit <select id="f-kit"><option value="">Todos</option><option value="PLASTICO">Plástico</option><option value="METALICO">Metálico</option></select></label>
-        <label>Topo <select id="f-topo"><option value="">Todos</option></select></label>
-        <label>Folha <select id="f-folha"><option value="">Todas</option></select></label>
-        <label class="chk"><input type="checkbox" id="f-avisos"> Somente com avisos</label>
-        <button type="button" id="limpar">Limpar</button>
-      </div>
+      <details id="filtros-det" class="filtros-det">
+        <summary>Filtros <span id="filtros-ativos" class="etiqueta" hidden></span></summary>
+        <div class="filtros">
+          <label>Kit <select id="f-kit"><option value="">Todos</option><option value="PLASTICO">Plástico</option><option value="METALICO">Metálico</option></select></label>
+          <label>Topo <select id="f-topo"><option value="">Todos</option></select></label>
+          <label>Folha <select id="f-folha"><option value="">Todas</option></select></label>
+          <label class="chk"><input type="checkbox" id="f-avisos"> Somente com avisos</label>
+          <button type="button" id="limpar">Limpar</button>
+        </div>
+      </details>
     </form>
   </section>
 
@@ -188,7 +201,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
 
 <script type="application/json" id="dados-base">null</script>
 <script type="application/json" id="dados-manifesto">null</script>
-<script type="application/json" id="dados-config">{"origens_pdf_autorizadas":[],"gerado_em":"2026-11-24T15:03:29"}</script>
+<script type="application/json" id="dados-config">{"origens_pdf_autorizadas":[],"gerado_em":"2026-11-24T15:46:33"}</script>
 <script>/*
  * Núcleo da consulta de placards CD — sem acesso ao DOM, testável no Node.
  * Espelha placards_cd/importacao.py (importação CSV/TSV) e
@@ -844,12 +857,27 @@ legend { font-weight: 600; padding: 0 .3rem; }
     var q = $('busca').value, f = filtrosAtuais();
     estado.resultados = N.buscar(estado.indice, q, f);
     renderResultados(q, f);
+    var exatos = estado.resultados.filter(function (x) { return x.pontuacao >= 95; });
+    var unico = exatos.length === 1 ? exatos[0] : (q.trim() && estado.resultados.length === 1 ? estado.resultados[0] : null);
+    if (unico && unico.registro.id !== estado.selecionado) abrirFicha(unico.registro.id, false);
+  }
+
+  function atualizarRotuloFiltros(f) {
+    var n = (f.kit ? 1 : 0) + (f.topo ? 1 : 0) + (f.folha ? 1 : 0) + (f.somenteAvisos ? 1 : 0), r = $('filtros-ativos');
+    r.hidden = !n;
+    r.textContent = n + ' ativo' + (n > 1 ? 's' : '');
   }
 
   function renderResultados(q, f) {
     var lista = limpar($('lista')), cont = $('contagem'), res = estado.resultados;
     var desc = descreverFiltros(f);
     if (!estado.base) { cont.textContent = 'Nenhuma base carregada.'; $('mais').hidden = true; return; }
+    atualizarRotuloFiltros(f);
+    if (!q.trim() && !desc) {
+      cont.textContent = 'Digite um PN novo ou CDPL para começar. Base com ' + estado.base.registros.length + ' registros.';
+      $('mais').hidden = true;
+      return;
+    }
     if (!res.length) {
       cont.textContent = 'Nenhum registro encontrado' + (q.trim() ? ' para “' + q.trim() + '”' : '') + (desc ? ' com os filtros: ' + desc : '') + '.';
       lista.appendChild(el('li', {}, [el('p', { class: 'vazio', texto: 'Sem resultados. Verifique o código ou limpe os filtros.' }),
@@ -897,7 +925,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
       if (b.getAttribute('data-id') === id) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
     });
     renderFicha();
-    if (focar) { var h = $('ficha-titulo'); if (h) h.focus(); }
+    if (focar) { var h = $('ficha-titulo'); if (h) { h.focus({ preventScroll: true }); $('ficha').scrollIntoView({ block: 'start' }); } }
   }
 
   function divergente(r, codigos) { return r.avisos.some(function (a) { return codigos.indexOf(a.codigo) >= 0; }); }
@@ -914,6 +942,13 @@ legend { font-weight: 600; padding: 0 .3rem; }
       r.provisorio ? el('span', { class: 'etiqueta aviso', texto: 'Referência provisória' }) : null,
       el('span', { class: 'etiqueta', texto: 'Configuração ' + r.configuracao })
     ]));
+    var presentes = r.folhas.filter(function (f) { return f.aparece; });
+    corpo.appendChild(el('div', { class: 'resumo', 'aria-label': 'Onde aplicar' }, [
+      el('div', {}, [el('span', { class: 'rot', texto: 'Topo' }), el('b', { texto: r.topo_normalizado })]),
+      el('div', {}, [el('span', { class: 'rot', texto: 'POS' }), r.pos ? el('b', { texto: r.pos }) : valor(null)]),
+      el('div', {}, [el('span', { class: 'rot', texto: 'Zona' }), r.zona ? el('b', { texto: r.zona }) : valor(null)]),
+      el('div', { class: 'larga' }, [el('span', { class: 'rot', texto: 'Folhas (quantidade)' }),
+        presentes.length ? el('b', { texto: presentes.map(function (f) { return 'SH' + f.folha + ': ' + f.texto; }).join(' · ') }) : valor(null)])]));
     if (r.avisos.length) {
       corpo.appendChild(el('div', { class: 'avisos', role: 'note', 'aria-label': 'Avisos' }, [
         el('strong', { texto: 'Avisos da fonte (nada foi corrigido):' }),

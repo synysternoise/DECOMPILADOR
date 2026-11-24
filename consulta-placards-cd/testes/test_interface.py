@@ -40,6 +40,11 @@ def buscar(pg, q):
     pg.wait_for_timeout(250)
 
 
+def abrir_filtros(pg):
+    if not pg.evaluate("document.getElementById('filtros-det').open"):
+        pg.click("#filtros-det summary")
+
+
 def abrir_primeiro(pg):
     pg.focus("#busca")
     pg.keyboard.press("ArrowDown")
@@ -73,6 +78,8 @@ def test_criterio2_busca_ficha_e_teclado(pagina):
         assert esperado in txt
     assert linha_folha(pg, 20).locator("td").first.inner_text() == "1"
     assert pg.locator("#ficha-corpo tbody tr").count() == 1
+    resumo = pg.inner_text("#ficha-corpo .resumo")
+    assert "171-60473-401/CD" in resumo and "00122" in resumo and "F204" in resumo and "SH20: 1" in resumo
 
 
 def test_criterio3_metalico_sem_pn(pagina):
@@ -100,9 +107,13 @@ def test_criterio4_quantidades_separadas(pagina):
 
 def test_filtros_combinados_e_folha_nao_esconde(pagina):
     pg = pagina
+    assert "Digite um PN novo ou CDPL" in pg.inner_text("#contagem")
+    assert pg.locator("#lista .item").count() == 0
+    abrir_filtros(pg)
     pg.select_option("#f-kit", "METALICO")
     pg.select_option("#f-folha", "9")
     pg.select_option("#f-topo", "171-60474-401/CD")
+    assert pg.inner_text("#filtros-ativos") == "3 ativos"
     assert re.search(r"^\d+ registros?", pg.inner_text("#contagem"))
     buscar(pg, "171-60555-001")
     abrir_primeiro(pg)
@@ -111,7 +122,17 @@ def test_filtros_combinados_e_folha_nao_esconde(pagina):
     pg.select_option("#f-kit", "PLASTICO")
     assert "Nenhum registro encontrado" in pg.inner_text("#contagem")
     pg.click("#limpar")
-    assert pg.input_value("#busca") == "" and "261 registros" in pg.inner_text("#contagem")
+    assert pg.input_value("#busca") == "" and "Base com 261 registros" in pg.inner_text("#contagem")
+    assert pg.is_hidden("#filtros-ativos")
+
+
+def test_correspondencia_exata_unica_abre_ficha_sozinha(pagina):
+    buscar(pagina, "CDPL568-201")
+    assert pagina.inner_text("#ficha-titulo") == "CDPL568-201"
+    assert pagina.evaluate("document.activeElement.id") == "busca"  # foco continua na busca
+    buscar(pagina, "171-50550-005")  # PN repetido em duas linhas: não abre sozinho
+    assert pagina.locator("#lista .item").count() == 2
+    assert pagina.inner_text("#ficha-titulo") == "CDPL568-201"
 
 
 def test_sem_resultados(pagina):

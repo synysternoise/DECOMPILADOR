@@ -21,17 +21,20 @@
     <h2 id="t-busca" class="vh">Busca e filtros</h2>
     <form id="form-busca" role="search" autocomplete="off">
       <div class="campo-busca">
-        <label for="busca">Buscar por PN novo, CDPL, referência E2, descrição ou topo</label>
+        <label for="busca">PN novo ou CDPL <span class="soft">(também E2, descrição ou topo)</span></label>
         <input id="busca" type="search" spellcheck="false" aria-describedby="dica-busca">
-        <p id="dica-busca" class="dica">Maiúsculas, espaços e hífens são ignorados na busca (ex.: 17150557021 encontra 171-50557-021). Correspondências exatas de PN/CDPL aparecem primeiro.</p>
+        <p id="dica-busca" class="dica">Pode digitar sem hífens ou espaços (17150557021 encontra 171-50557-021). Se houver uma única correspondência exata, a ficha abre sozinha.</p>
       </div>
-      <div class="filtros">
-        <label>Kit <select id="f-kit"><option value="">Todos</option><option value="PLASTICO">Plástico</option><option value="METALICO">Metálico</option></select></label>
-        <label>Topo <select id="f-topo"><option value="">Todos</option></select></label>
-        <label>Folha <select id="f-folha"><option value="">Todas</option></select></label>
-        <label class="chk"><input type="checkbox" id="f-avisos"> Somente com avisos</label>
-        <button type="button" id="limpar">Limpar</button>
-      </div>
+      <details id="filtros-det" class="filtros-det">
+        <summary>Filtros <span id="filtros-ativos" class="etiqueta" hidden></span></summary>
+        <div class="filtros">
+          <label>Kit <select id="f-kit"><option value="">Todos</option><option value="PLASTICO">Plástico</option><option value="METALICO">Metálico</option></select></label>
+          <label>Topo <select id="f-topo"><option value="">Todos</option></select></label>
+          <label>Folha <select id="f-folha"><option value="">Todas</option></select></label>
+          <label class="chk"><input type="checkbox" id="f-avisos"> Somente com avisos</label>
+          <button type="button" id="limpar">Limpar</button>
+        </div>
+      </details>
     </form>
   </section>
 

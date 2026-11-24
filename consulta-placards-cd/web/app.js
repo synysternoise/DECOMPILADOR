@@ -123,12 +123,27 @@
     var q = $('busca').value, f = filtrosAtuais();
     estado.resultados = N.buscar(estado.indice, q, f);
     renderResultados(q, f);
+    var exatos = estado.resultados.filter(function (x) { return x.pontuacao >= 95; });
+    var unico = exatos.length === 1 ? exatos[0] : (q.trim() && estado.resultados.length === 1 ? estado.resultados[0] : null);
+    if (unico && unico.registro.id !== estado.selecionado) abrirFicha(unico.registro.id, false);
+  }
+
+  function atualizarRotuloFiltros(f) {
+    var n = (f.kit ? 1 : 0) + (f.topo ? 1 : 0) + (f.folha ? 1 : 0) + (f.somenteAvisos ? 1 : 0), r = $('filtros-ativos');
+    r.hidden = !n;
+    r.textContent = n + ' ativo' + (n > 1 ? 's' : '');
   }
 
   function renderResultados(q, f) {
     var lista = limpar($('lista')), cont = $('contagem'), res = estado.resultados;
     var desc = descreverFiltros(f);
     if (!estado.base) { cont.textContent = 'Nenhuma base carregada.'; $('mais').hidden = true; return; }
+    atualizarRotuloFiltros(f);
+    if (!q.trim() && !desc) {
+      cont.textContent = 'Digite um PN novo ou CDPL para começar. Base com ' + estado.base.registros.length + ' registros.';
+      $('mais').hidden = true;
+      return;
+    }
     if (!res.length) {
       cont.textContent = 'Nenhum registro encontrado' + (q.trim() ? ' para “' + q.trim() + '”' : '') + (desc ? ' com os filtros: ' + desc : '') + '.';
       lista.appendChild(el('li', {}, [el('p', { class: 'vazio', texto: 'Sem resultados. Verifique o código ou limpe os filtros.' }),
@@ -176,7 +191,7 @@
       if (b.getAttribute('data-id') === id) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
     });
     renderFicha();
-    if (focar) { var h = $('ficha-titulo'); if (h) h.focus(); }
+    if (focar) { var h = $('ficha-titulo'); if (h) { h.focus({ preventScroll: true }); $('ficha').scrollIntoView({ block: 'start' }); } }
   }
 
   function divergente(r, codigos) { return r.avisos.some(function (a) { return codigos.indexOf(a.codigo) >= 0; }); }
@@ -193,6 +208,13 @@
       r.provisorio ? el('span', { class: 'etiqueta aviso', texto: 'Referência provisória' }) : null,
       el('span', { class: 'etiqueta', texto: 'Configuração ' + r.configuracao })
     ]));
+    var presentes = r.folhas.filter(function (f) { return f.aparece; });
+    corpo.appendChild(el('div', { class: 'resumo', 'aria-label': 'Onde aplicar' }, [
+      el('div', {}, [el('span', { class: 'rot', texto: 'Topo' }), el('b', { texto: r.topo_normalizado })]),
+      el('div', {}, [el('span', { class: 'rot', texto: 'POS' }), r.pos ? el('b', { texto: r.pos }) : valor(null)]),
+      el('div', {}, [el('span', { class: 'rot', texto: 'Zona' }), r.zona ? el('b', { texto: r.zona }) : valor(null)]),
+      el('div', { class: 'larga' }, [el('span', { class: 'rot', texto: 'Folhas (quantidade)' }),
+        presentes.length ? el('b', { texto: presentes.map(function (f) { return 'SH' + f.folha + ': ' + f.texto; }).join(' · ') }) : valor(null)])]));
     if (r.avisos.length) {
       corpo.appendChild(el('div', { class: 'avisos', role: 'note', 'aria-label': 'Avisos' }, [
         el('strong', { texto: 'Avisos da fonte (nada foi corrigido):' }),
