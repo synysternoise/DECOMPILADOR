@@ -1,0 +1,7 @@
+{
+  "descricao": "Contagens do recorte conferido manualmente. Usadas apenas para comparação no relatório; o importador nunca força estes números.",
+  "kits": {
+    "PLASTICO": {"registros": 189, "topo": "171-60473-401/CD"},
+    "METALICO": {"registros": 72, "sem_pn_novo": 60, "topo": "171-60474-401/CD"}
+  }
+}

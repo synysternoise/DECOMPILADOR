@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; frame-src blob:; object-src 'none'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta de placards — configuração CD</title>
+<style>/*__CSS__*/</style>
+</head>
+<body>
+<a class="pular" href="#busca">Pular para a busca</a>
+<header class="topo-pagina">
+  <h1>Consulta de placards <span class="cfg">configuração CD</span></h1>
+  <p class="aviso-fixo">Consulta de apoio. <strong>Não substitui o desenho liberado.</strong> A planilha Excel é a fonte de referência e não é alterada por esta página.</p>
+  <div id="estado-base" class="estado-base" role="status"></div>
+</header>
+
+<main>
+  <section class="painel-busca" aria-labelledby="t-busca">
+    <h2 id="t-busca" class="vh">Busca e filtros</h2>
+    <form id="form-busca" role="search" autocomplete="off">
+      <div class="campo-busca">
+        <label for="busca">Buscar por PN novo, CDPL, referência E2, descrição ou topo</label>
+        <input id="busca" type="search" spellcheck="false" aria-describedby="dica-busca">
+        <p id="dica-busca" class="dica">Maiúsculas, espaços e hífens são ignorados na busca (ex.: 17150557021 encontra 171-50557-021). Correspondências exatas de PN/CDPL aparecem primeiro.</p>
+      </div>
+      <div class="filtros">
+        <label>Kit <select id="f-kit"><option value="">Todos</option><option value="PLASTICO">Plástico</option><option value="METALICO">Metálico</option></select></label>
+        <label>Topo <select id="f-topo"><option value="">Todos</option></select></label>
+        <label>Folha <select id="f-folha"><option value="">Todas</option></select></label>
+        <label class="chk"><input type="checkbox" id="f-avisos"> Somente com avisos</label>
+        <button type="button" id="limpar">Limpar</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="layout">
+    <section class="resultados" aria-labelledby="t-res">
+      <h2 id="t-res">Resultados</h2>
+      <p id="contagem" class="contagem" role="status" aria-live="polite"></p>
+      <ul id="lista" class="lista"></ul>
+      <button type="button" id="mais" class="mais" hidden>Mostrar mais</button>
+    </section>
+    <section id="ficha" class="ficha" aria-labelledby="t-ficha">
+      <h2 id="t-ficha">Ficha da aplicação</h2>
+      <div id="ficha-corpo"><p class="vazio">Selecione um resultado para ver a ficha.</p></div>
+    </section>
+  </div>
+
+  <section id="visualizador" class="visualizador" aria-labelledby="t-vis" hidden>
+    <div class="vis-barra">
+      <h2 id="t-vis">Desenho 2D</h2>
+      <p id="vis-info" class="vis-info"></p>
+      <a id="vis-nova-aba" target="_blank" rel="noopener noreferrer">Abrir em nova aba</a>
+      <button type="button" id="vis-fechar">Fechar visualizador</button>
+    </div>
+    <div id="vis-quadro" class="vis-quadro"></div>
+  </section>
+
+  <details id="painel-desenhos" class="painel">
+    <summary>Desenhos 2D — manifesto (mapa folha → página do PDF)</summary>
+    <div id="desenhos-corpo"></div>
+  </details>
+
+  <details id="painel-csv" class="painel">
+    <summary>Importar base de CSV/TSV (alternativa)</summary>
+    <div class="painel-corpo">
+      <p>Exporte cada aba (<em>PLACARD, KIT PLASTIC</em> e <em>PLACARD, KIT METALLIC</em>) do Excel como CSV ou texto separado por tabulação, mantendo o cabeçalho e as colunas A:AH na posição original. O kit é identificado pelo cabeçalho. A base importada vale só para esta sessão e substitui a base incorporada.</p>
+      <label for="arquivo-csv">Arquivos CSV/TSV (um por kit)</label>
+      <input id="arquivo-csv" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" multiple>
+      <div id="csv-resultado" role="status"></div>
+    </div>
+  </details>
+
+  <details id="painel-fonte" class="painel">
+    <summary>Sobre a base — origem, contagens e exclusões</summary>
+    <div id="fonte-corpo" class="painel-corpo"></div>
+  </details>
+</main>
+
+<input type="file" id="seletor-pdf" accept="application/pdf,.pdf" hidden>
+
+<script type="application/json" id="dados-base">__DADOS_BASE__</script>
+<script type="application/json" id="dados-manifesto">__DADOS_MANIFESTO__</script>
+<script type="application/json" id="dados-config">__DADOS_CONFIG__</script>
+<script>/*__NUCLEO__*/</script>
+<script>/*__APP__*/</script>
+</body>
+</html>

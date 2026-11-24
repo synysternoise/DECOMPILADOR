@@ -1,0 +1,2157 @@
+{
+ "descricao": "Casos compartilhados pelos validadores Python e JS. Somente códigos são comparados.",
+ "casos": [
+  {
+   "nome": "valido",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [],
+   "avisos": []
+  },
+  {
+   "nome": "valido com topos da base",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": [
+    "171-60473-401/CD",
+    "171-60474-401/CD"
+   ],
+   "erros": [],
+   "avisos": []
+  },
+  {
+   "nome": "formato errado",
+   "manifesto": {
+    "formato": "outro",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "FORMATO_INVALIDO"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "versao nao suportada",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 2,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "FORMATO_INVALIDO"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "nao e objeto",
+   "manifesto": [
+    1,
+    2
+   ],
+   "topos_base": null,
+   "erros": [
+    "FORMATO_INVALIDO"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "sem desenhos",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1
+   },
+   "topos_base": null,
+   "erros": [
+    "DESENHOS_AUSENTE"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "configuracao LX",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "LX",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "CONFIGURACAO_INVALIDA",
+    "TOPO_CONFIG_DIVERGENTE"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "topo de outra configuracao",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/LX",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "TOPO_CONFIG_DIVERGENTE"
+   ],
+   "avisos": [
+    "SEM_ATIVA"
+   ]
+  },
+  {
+   "nome": "topo invalido",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171 60473 401",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "TOPO_INVALIDO"
+   ],
+   "avisos": [
+    "SEM_ATIVA"
+   ]
+  },
+  {
+   "nome": "topo com espacos e minusculas normaliza",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": " 171-60473-401/ cd ",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [],
+   "avisos": []
+  },
+  {
+   "nome": "topo fora da base",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": [
+    "171-60473-401/CD"
+   ],
+   "erros": [],
+   "avisos": [
+    "TOPO_FORA_DA_BASE"
+   ]
+  },
+  {
+   "nome": "revisao vazia",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": " ",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "CAMPO_OBRIGATORIO"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "revisao invalida",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A B",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "REVISAO_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "revisao duplicada",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "a",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "DUPLICADO"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "duas ativas",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "MULTIPLAS_ATIVAS"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "nenhuma ativa",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [],
+   "avisos": [
+    "SEM_ATIVA"
+   ]
+  },
+  {
+   "nome": "ativa nao booleana",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": "sim",
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "TIPO_INVALIDO"
+   ],
+   "avisos": [
+    "SEM_ATIVA"
+   ]
+  },
+  {
+   "nome": "observacoes nao texto",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false,
+      "observacoes": 5
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "TIPO_INVALIDO"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "folha zero",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "0": 2
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "FOLHA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "folha 21",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "21": 2
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "FOLHA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "folha nao numerica",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "SH5": 7
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "FOLHA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "folha duplicada 01 e 1",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "01": 4
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "FOLHA_DUPLICADA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "pagina zero",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "2": 0
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "PAGINA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "pagina texto",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "2": "4"
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "PAGINA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "pagina fracionaria",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "2": 4.5
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "PAGINA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "pagina booleana",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "2": true
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "PAGINA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "pagina acima do total",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "2": 25
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "PAGINA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "total de paginas invalido",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": -1,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "PAGINA_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "pagina repetida",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22,
+       "2": 3
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [],
+   "avisos": [
+    "PAGINA_REPETIDA"
+   ]
+  },
+  {
+   "nome": "mapa vazio",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {},
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [],
+   "avisos": [
+    "MAPA_VAZIO"
+   ]
+  },
+  {
+   "nome": "mapa ausente",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "CAMPO_OBRIGATORIO"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "url http",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "http://desenhos.empresa.example/x.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "ORIGEM_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "url javascript",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "javascript:alert(1)"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "ORIGEM_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "origem tipo desconhecido",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "ftp"
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "ORIGEM_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "origem ausente",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "ORIGEM_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "arquivo local sem .pdf",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "desenho.docx",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "ORIGEM_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "sha256 invalido",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": "abc"
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     }
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "ORIGEM_INVALIDA"
+   ],
+   "avisos": []
+  },
+  {
+   "nome": "desenho nao objeto",
+   "manifesto": {
+    "formato": "manifesto-desenhos-placards",
+    "versao_formato": 1,
+    "atualizado_em": "2026-11-24",
+    "desenhos": [
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "A",
+      "ativa": true,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "a.pdf",
+       "sha256": ""
+      },
+      "total_paginas": 24,
+      "mapa_folhas": {
+       "1": 3,
+       "20": 22
+      },
+      "vinculo_conferido": false
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60473-401/CD",
+      "revisao": "B",
+      "ativa": false,
+      "origem": {
+       "tipo": "local",
+       "nome_arquivo": "b.pdf"
+      },
+      "mapa_folhas": {
+       "20": 23
+      }
+     },
+     {
+      "configuracao": "CD",
+      "topo": "171-60474-401/CD",
+      "revisao": "C",
+      "ativa": true,
+      "origem": {
+       "tipo": "url",
+       "url": "https://desenhos.empresa.example/171-60474-401.pdf"
+      },
+      "mapa_folhas": {
+       "6": 8
+      },
+      "observacoes": "<b>texto</b> \"com aspas\" e acentuação"
+     },
+     "x"
+    ]
+   },
+   "topos_base": null,
+   "erros": [
+    "TIPO_INVALIDO"
+   ],
+   "avisos": []
+  }
+ ]
+}
