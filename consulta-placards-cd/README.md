@@ -12,15 +12,28 @@ Catálogo local para localizar a aplicação de um placard pelo **PN novo** ou p
 | `placards_cd/leitores.py` | Leitura somente-leitura de `.xlsx`/`.xlsm` (openpyxl), `.xls` (xlrd) e CSV/TSV. Macros nunca são executadas |
 | `placards_cd/importacao.py` | Regras dos dados: layout, filtro CD, registros, avisos, exclusões |
 | `placards_cd/manifesto.py`, `validar_manifesto.py` | Validação do manifesto de desenhos 2D e conferência dos PDFs |
-| `web/` | Modelo do HTML (`template.html`, `estilo.css`, `app.js`, `nucleo.js`) |
+| `web/` | Modelo do HTML (`template.html`, `estilo.css`, `app.js`, `nucleo.js`, `xlsx.js` — leitor de .xlsx no navegador) |
 | `config/snapshot_conferido.json` | Contagens do recorte conferido (189 / 72 / 60), usadas **só para comparação** no relatório |
 | `desenhos/manifesto.modelo.json` | Modelo vazio de manifesto (sem páginas: preencher a partir do PDF liberado) |
 | `testes/` | Testes com dados **sintéticos** (planilha, PDF e manifesto gerados na hora) |
-| `dist/consulta-placards-cd.html` | HTML de exemplo **sem base** (rotulado "Base não carregada") |
+| `dist/consulta-placards-cd.html` | A consulta **sem base**: abra e carregue a planilha por ela |
+
+## Uso no PC (sem Python)
+
+1. Abra `dist/consulta-placards-cd.html` no Edge ou no Chrome (dois cliques).
+2. Clique em **Carregar planilha (.xlsx)…** e escolha a `PLANILHA_PLACARD CD.xlsx`. A planilha é lida no próprio computador: nada é enviado, macros não rodam e o arquivo não é alterado.
+3. Confira as contagens que aparecem no topo (e em **Sobre a base**). Se diferirem do snapshot conferido (189 / 72 / 60), a página avisa e não corrige nada.
+4. Clique em **Salvar consulta com esta base…**. O navegador baixa um `consulta-placards-cd.html` com a base embutida. Guarde-o numa pasta autorizada: é esse arquivo que você e a equipe abrem no dia a dia, sem carregar a planilha de novo.
+5. Quando a planilha mudar, repita os passos 2 e 4.
+
+`.xls` antigo não é lido pela página: abra no Excel e use **Salvar como → Pasta de Trabalho do Excel (.xlsx)**. A página usa os valores que o Excel salvou no arquivo; se alguma fórmula vier sem valor (aviso `FORMULA_SEM_CACHE`), abra a planilha no Excel, salve e carregue de novo.
+
+O importador Python abaixo faz o mesmo (com o mesmo resultado, verificado nos testes) e serve para automatizar ou gerar o relatório em Markdown.
 
 ## Requisitos
 
-- Python 3.10+ com `openpyxl`. Para `.xls` legado, também `xlrd`; para conferir PDFs, `pypdf`.
+- Para usar a página: só o Edge ou o Chrome.
+- Para o importador por linha de comando (opcional): Python 3.10+ com `openpyxl`. Para `.xls` legado, também `xlrd`; para conferir PDFs, `pypdf`.
 - Navegador atual (Edge, Chrome ou Firefox) para abrir o HTML. Funciona offline, direto do disco.
 - Somente para os testes: `pytest`, `reportlab`, `playwright` (Chromium) e Node 18+.
 
@@ -28,7 +41,7 @@ Catálogo local para localizar a aplicação de um placard pelo **PN novo** ou p
 pip install -r requirements.txt
 ```
 
-## Atualizar a base (a partir da planilha)
+## Atualizar a base por linha de comando (opcional)
 
 ```sh
 python -m placards_cd.importar --planilha "PLANILHA_PLACARD CD.xlsx" --saida dist
@@ -140,13 +153,14 @@ Todos os dados de teste são **sintéticos**, gerados em pasta temporária: uma 
 
 - critérios 1–4 (contagens, `171-50557-021`/`CDPL569-1-16` com e sem hífens, `171-60555-001` nas folhas 6/7/9/11, `CDPL568-201` sem PN e sem descrição, divergência da linha 130, fonte inalterada);
 - filtros combinados, valores ausentes, zeros à esquerda, aspas, acentos, tentativa de injeção de HTML, dados não CD, layout inválido, `.xls` (convertido pelo LibreOffice) e CSV/TSV;
-- paridade entre o importador Python e o importador CSV da página;
+- paridade entre o importador Python e a página (planilha .xlsx carregada no navegador, inclusive regravada pelo LibreOffice, e CSV/TSV);
+- salvar a consulta com a base embutida e reabrir o arquivo salvo;
 - PDF: folha 20 → página 22, troca de revisão ativa (→ página 23), mapa ausente (folha 19), documento inteiro, PDF errado recusado pelo SHA-256, URL não autorizada, export/import do manifesto;
 - ausência de qualquer requisição de rede durante o uso da página.
 
 ## Limitações e pendências
 
-- **Os dados reais ainda não foram importados**: a planilha não foi fornecida (só fotos da tela). Os critérios 1–4 foram verificados na planilha sintética. Rode o importador no arquivo real e confira o relatório contra o snapshot.
+- **Os dados reais ainda não foram carregados**: a planilha não foi fornecida (só fotos da tela). Os critérios 1–4 foram verificados na planilha sintética. Rode o importador no arquivo real e confira o relatório contra o snapshot.
 - **Nenhum vínculo oficial folha → página foi validado.** O manifesto em `desenhos/` é só um modelo vazio. Preencha a partir dos PDFs liberados e só então marque `vinculo_conferido`.
 - O protótipo `consulta-placards-cd.html` mencionado no pedido não foi recebido. A interface foi feita do zero seguindo os requisitos.
 - Abrir na página (`#page=P`) depende do leitor de PDF do navegador (Edge, Chrome e Firefox suportam). Em leitores que ignoram o parâmetro, use "documento inteiro" com a lista de páginas.

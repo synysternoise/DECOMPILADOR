@@ -250,3 +250,107 @@ def test_sem_base_e_importacao_csv(navegador, ambiente, tmp_path):
     abrir_primeiro(pg)
     assert "00122" in pg.inner_text("#ficha-corpo")
     pg.close()
+
+
+# ---------------------------------------------------------------- planilha carregada direto na página
+def _sem_base(tmp_path):
+    assert importar.main(["--sem-base", "--saida", str(tmp_path)]) == 0
+    return tmp_path / "consulta-placards-cd.html"
+
+
+def _carregar(pg, arquivo):
+    pg.set_input_files("#arquivo-planilha", str(arquivo))
+    for _ in range(200):  # sem wait_for_function: a CSP da página bloqueia eval
+        texto = pg.inner_text("#aviso-global")
+        if texto and "Lendo" not in texto:
+            return texto
+        pg.wait_for_timeout(100)
+    raise AssertionError("planilha não terminou de carregar")
+
+
+def _comparar_com_python(base_js, base_py):
+    for campo in ("resumo", "abas_ignoradas", "exclusoes"):
+        assert base_js[campo] == base_py[campo], campo
+    assert len(base_js["registros"]) == len(base_py["registros"])
+    for a, b in zip(base_py["registros"], base_js["registros"]):
+        assert a == b, (a["id"], {k: (a[k], b.get(k)) for k in a if a[k] != b.get(k)})
+
+
+def test_planilha_carregada_no_navegador_igual_ao_importador(navegador, ambiente, tmp_path):
+    pg = navegador.new_page()
+    rede = []
+    pg.on("request", lambda r: rede.append(r.url) if not r.url.startswith(("file:", "blob:", "data:")) else None)
+    pg.goto(_sem_base(tmp_path).as_uri())
+    assert "Carregar planilha" in pg.inner_text("#estado-base") and pg.is_disabled("#salvar-consulta")
+    msg = _carregar(pg, ambiente["planilha"])
+    assert "Planilha carregada: Plástico 189 · Metálico 72" in msg and "diferença" not in msg
+    base_js = pg.evaluate("ConsultaPlacards.base()")
+    _comparar_com_python(base_js, ambiente["base"])
+    assert base_js["fonte"]["sha256"] == ambiente["hash_antes"]
+    assert base_js["comparacao_snapshot"]["diferencas"] == []
+    assert "nada foi enviado" in pg.inner_text("#estado-base")
+    buscar(pg, "17150557021")
+    assert "00122" in pg.inner_text("#ficha-corpo .resumo")
+    assert rede == []
+    pg.close()
+
+
+def test_planilha_regravada_pelo_libreoffice(navegador, ambiente, tmp_path):
+    import shutil
+    import subprocess
+    soffice = shutil.which("soffice")
+    if not soffice:
+        pytest.skip("LibreOffice ausente")
+    origem = tmp_path / "orig"
+    origem.mkdir()
+    shutil.copy(ambiente["planilha"], origem / "lo.xlsx")
+    subprocess.run([soffice, "--headless", "--convert-to", "xlsx:Calc MS Excel 2007 XML", "--outdir", str(tmp_path),
+                    str(origem / "lo.xlsx")], check=True, capture_output=True, timeout=180)
+    lo = tmp_path / "lo.xlsx"
+    assert importar.main(["--planilha", str(lo), "--saida", str(tmp_path / "py")]) == 0
+    base_py = json.loads((tmp_path / "py" / "base_placards_cd.json").read_text(encoding="utf-8"))
+    pg = navegador.new_page()
+    pg.goto(_sem_base(tmp_path / "html").as_uri())
+    _carregar(pg, lo)
+    _comparar_com_python(pg.evaluate("ConsultaPlacards.base()"), base_py)
+    pg.close()
+
+
+def test_planilha_com_layout_errado_ou_xls(navegador, ambiente, tmp_path):
+    import fixtures
+    ruim = fixtures.gerar_planilha(tmp_path / "ruim.xlsx", layout_invalido=True)
+    xls = tmp_path / "velha.xls"
+    xls.write_bytes(b"\xd0\xcf\x11\xe0")
+    pg = navegador.new_page()
+    pg.goto(_sem_base(tmp_path / "h").as_uri())
+    msg = _carregar(pg, ruim)
+    assert "Planilha não carregada" in msg and "PLACARD, KIT METALLIC" in msg and "Coluna C" in msg and "SH12" in msg
+    assert "Base não carregada" in pg.inner_text("#estado-base")
+    assert "salve como .xlsx" in _carregar(pg, xls).lower() or "Pasta de Trabalho do Excel (.xlsx)" in pg.inner_text("#aviso-global")
+    pg.close()
+
+
+def test_salvar_consulta_com_base_embutida(navegador, ambiente, tmp_path):
+    ctx = navegador.new_context(accept_downloads=True)
+    pg = ctx.new_page()
+    pg.goto(_sem_base(tmp_path).as_uri())
+    _carregar(pg, ambiente["planilha"])
+    with pg.expect_download() as dl:
+        pg.click("#salvar-consulta")
+    salvo = tmp_path / "salva" / "consulta-placards-cd.html"
+    salvo.parent.mkdir()
+    dl.value.save_as(salvo)
+    assert dl.value.suggested_filename == "consulta-placards-cd.html"
+    html = salvo.read_text(encoding="utf-8")
+    dados = html.split('id="dados-base">', 1)[1].split("</script>", 1)[0]
+    assert "<" not in dados and "\\u003c/script\\u003e" in dados
+    pg2 = ctx.new_page()
+    erros = []
+    pg2.on("pageerror", lambda e: erros.append(str(e)))
+    pg2.goto(salvo.as_uri())
+    assert "Base: PLANILHA_PLACARD CD.xlsx" in pg2.inner_text("#estado-base")
+    buscar(pg2, "CDPL568-201")
+    assert pg2.inner_text("#ficha-titulo") == "CDPL568-201"
+    _comparar_com_python(pg2.evaluate("ConsultaPlacards.base()"), ambiente["base"])
+    assert erros == []
+    ctx.close()

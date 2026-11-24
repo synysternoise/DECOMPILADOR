@@ -121,6 +121,8 @@ legend { font-weight: 600; padding: 0 .3rem; }
 .resumo .rot { display: block; font-size: .8rem; color: var(--suave); }
 .resumo b { font-size: 1.05rem; overflow-wrap: anywhere; }
 @media (max-width: 480px) { .resumo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .resumo > div:first-child { grid-column: 1 / -1; } }
+.barra-base { display: flex; flex-wrap: wrap; gap: .5rem .75rem; align-items: center; margin-top: .6rem; }
+.barra-base .dica { margin: 0; }
 </style>
 </head>
 <body>
@@ -129,6 +131,12 @@ legend { font-weight: 600; padding: 0 .3rem; }
   <h1>Consulta de placards <span class="cfg">configuração CD</span></h1>
   <p class="aviso-fixo">Consulta de apoio. <strong>Não substitui o desenho liberado.</strong> A planilha Excel é a fonte de referência e não é alterada por esta página.</p>
   <div id="estado-base" class="estado-base" role="status"></div>
+  <div class="barra-base">
+    <button type="button" id="carregar-planilha" class="primario">Carregar planilha (.xlsx)…</button>
+    <button type="button" id="salvar-consulta" disabled>Salvar consulta com esta base…</button>
+    <span class="dica">A planilha é lida neste computador; nada é enviado e o arquivo não é alterado.</span>
+    <input type="file" id="arquivo-planilha" accept=".xlsx,.xlsm,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+  </div>
 </header>
 
 <main>
@@ -182,7 +190,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
   </details>
 
   <details id="painel-csv" class="painel">
-    <summary>Importar base de CSV/TSV (alternativa)</summary>
+    <summary>Importar base de CSV/TSV (alternativa à planilha)</summary>
     <div class="painel-corpo">
       <p>Exporte cada aba (<em>PLACARD, KIT PLASTIC</em> e <em>PLACARD, KIT METALLIC</em>) do Excel como CSV ou texto separado por tabulação, mantendo o cabeçalho e as colunas A:AH na posição original. O kit é identificado pelo cabeçalho. A base importada vale só para esta sessão e substitui a base incorporada.</p>
       <label for="arquivo-csv">Arquivos CSV/TSV (um por kit)</label>
@@ -201,7 +209,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
 
 <script type="application/json" id="dados-base">null</script>
 <script type="application/json" id="dados-manifesto">null</script>
-<script type="application/json" id="dados-config">{"origens_pdf_autorizadas":[],"gerado_em":"2026-11-24T15:46:33"}</script>
+<script type="application/json" id="dados-config">{"origens_pdf_autorizadas":[],"gerado_em":"2026-11-24T15:50:49","referencia_snapshot":{"descricao":"Contagens do recorte conferido manualmente. Usadas apenas para comparação no relatório; o importador nunca força estes números.","kits":{"PLASTICO":{"registros":189,"topo":"171-60473-401/CD"},"METALICO":{"registros":72,"sem_pn_novo":60,"topo":"171-60474-401/CD"}}}}</script>
 <script>/*
  * Núcleo da consulta de placards CD — sem acesso ao DOM, testável no Node.
  * Espelha placards_cd/importacao.py (importação CSV/TSV) e
@@ -332,7 +340,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
 
   // ------------------------------------------------------------- registros
 
-  function calcularAvisos(reg, errosColunas) {
+  function calcularAvisos(reg, errosColunas, semCache) {
     var avisos = [];
     function add(c, m) { avisos.push({ codigo: c, mensagem: m }); }
     if (!reg.pn_novo) add('SEM_PN_NOVO', 'Sem PN novo (coluna A vazia).');
@@ -353,10 +361,13 @@ legend { font-weight: 600; padding: 0 .3rem; }
       add('TOTAL_DIF_SOMA', 'Total registrado (' + fmtNum(total) + ') difere da soma das folhas (' + fmtNum(soma) + ').');
     if (qty !== null && total !== null && !iguais(qty, total))
       add('QTY_DIF_TOTAL', 'QTY prevista (' + fmtNum(qty) + ') difere do Total registrado (' + fmtNum(total) + ').');
+    (semCache || []).forEach(function (col) {
+      add('FORMULA_SEM_CACHE', 'Coluna ' + letraColuna(col) + ' tem fórmula sem valor calculado salvo; abra e salve a planilha no Excel.');
+    });
     return avisos;
   }
 
-  function montarRegistro(kit, aba, linha, t, rotuloC, topoNorm, cfg, errosColunas) {
+  function montarRegistro(kit, aba, linha, t, rotuloC, topoNorm, cfg, errosColunas, semCache) {
     var folhas = [];
     for (var k = 0; k < NUM_FOLHAS; k++) {
       var texto = t[COL.SH1 + k];
@@ -379,7 +390,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
       total_numero: numero(t[COL.AF]),
       provisorio: ehProvisorio(t[COL.C])
     };
-    reg.avisos = calcularAvisos(reg, errosColunas || []);
+    reg.avisos = calcularAvisos(reg, errosColunas || [], semCache || []);
     return reg;
   }
 
@@ -397,7 +408,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
   ErroLayout.prototype = Object.create(Error.prototype);
 
   /** Importa uma aba (matriz de textos, como num CSV exportado). */
-  function importarAba(kit, aba, linhas) {
+  function importarAba(kit, aba, linhas, semCacheLinhas) {
     var textos = linhas.map(textosLinha);
     var idx = -1;
     for (var i = 0; i < Math.min(MAX_LINHA_CABECALHO, textos.length); i++) { if (ehLinhaCabecalho(textos[i])) { idx = i; break; } }
@@ -421,7 +432,8 @@ legend { font-weight: 600; padding: 0 .3rem; }
       if (!t[COL.A] && !t[COL.C]) { excluir('sem PN novo (A) e sem PN antigo/CDPL (C)'); continue; }
       var errosCol = [];
       t.forEach(function (v, k) { if (v !== null && ehErroExcel(v)) errosCol.push([k, v]); });
-      registros.push(montarRegistro(kit, aba, numLinha, t, cab[COL.C], ext[1], cfg, errosCol));
+      var semCache = semCacheLinhas && semCacheLinhas[r] ? semCacheLinhas[r].filter(function (k) { return k < NUM_COLUNAS; }) : [];
+      registros.push(montarRegistro(kit, aba, numLinha, t, cab[COL.C], ext[1], cfg, errosCol, semCache));
     }
     return { kit: kit, aba: aba, linha_cabecalho: idx + 1, avisos_layout: lay.avisos, registros: registros, exclusoes: exclusoes, linhas_vazias: vazias };
   }
@@ -717,6 +729,80 @@ legend { font-weight: 600; padding: 0 .3rem; }
     return r;
   }
 
+  // ------------------------------------------------------------- planilha inteira
+
+  function normalizarNomeAba(nome) { return normalizarCabecalho(nome).replace(/[\s,]+/g, ''); }
+
+  function resolverAbas(nomes) {
+    var porNorma = {}, encontradas = {}, faltando = [];
+    nomes.forEach(function (n) { porNorma[normalizarNomeAba(n)] = n; });
+    Object.keys(ABAS_ESCOPO).forEach(function (kit) {
+      var esperado = ABAS_ESCOPO[kit];
+      if (nomes.indexOf(esperado) >= 0) encontradas[kit] = esperado;
+      else if (porNorma[normalizarNomeAba(esperado)]) encontradas[kit] = porNorma[normalizarNomeAba(esperado)];
+      else faltando.push(esperado);
+    });
+    if (faltando.length) throw new ErroLayout('Aba(s) não encontrada(s): ' + faltando.join(', ') + '. Abas do arquivo: ' + nomes.join(', '));
+    var usadas = Object.keys(encontradas).map(function (k) { return encontradas[k]; });
+    var ignoradas = nomes.filter(function (n) { return usadas.indexOf(n) < 0; })
+      .map(function (n) { return { aba: n, motivo: 'fora do escopo (somente PLACARD, KIT PLASTIC/METALLIC)' }; });
+    return { abas: encontradas, ignoradas: ignoradas };
+  }
+
+  function compararComReferencia(resumo, ref) {
+    var dif = [];
+    Object.keys((ref && ref.kits) || {}).forEach(function (kit) {
+      var esp = ref.kits[kit], obt = resumo[kit];
+      if (!obt) { dif.push(kit + ': aba não importada.'); return; }
+      ['registros', 'sem_pn_novo'].forEach(function (c) {
+        if (esp[c] !== undefined && esp[c] !== obt[c]) dif.push(kit + '.' + c + ': esperado ' + esp[c] + ', obtido ' + obt[c] + '.');
+      });
+      if (esp.topo !== undefined) {
+        var topos = Object.keys(obt.topos || {}).sort();
+        if (!(topos.length === 1 && topos[0] === esp.topo))
+          dif.push(kit + '.topo: esperado só ' + esp.topo + ', obtido [' + topos.map(function (t) { return "'" + t + "'"; }).join(', ') + '].');
+      }
+    });
+    return dif;
+  }
+
+  /**
+   * Monta a base a partir de uma planilha aberta (nomes das abas + leitor).
+   * lerAba(nome) -> Promise<linhas>, cada linha uma lista de {texto, formulaSemCache}.
+   */
+  function importarPlanilha(nomesAbas, lerAba, fonte, referencia) {
+    var res;
+    try { res = resolverAbas(nomesAbas); } catch (e) { return Promise.reject(e); }
+    var kits = Object.keys(res.abas);
+    return Promise.all(kits.map(function (k) { return lerAba(res.abas[k]); })).then(function (dados) {
+      var resultados = kits.map(function (kit, i) {
+        var textos = [], semCache = [];
+        dados[i].forEach(function (linha, r) {
+          var t = [], s = [];
+          for (var c = 0; c < linha.length; c++) {
+            var cel = linha[c];
+            t.push(cel ? cel.texto : null);
+            if (cel && cel.formulaSemCache) s.push(c);
+          }
+          textos.push(t); semCache.push(s);
+        });
+        return importarAba(kit, res.abas[kit], textos, semCache);
+      });
+      var resumo = {}, registros = [], exclusoes = [];
+      resultados.forEach(function (r) { resumo[r.kit] = resumoKit(r); registros = registros.concat(r.registros); exclusoes = exclusoes.concat(r.exclusoes); });
+      var comp = referencia && referencia.kits ? { referencia: 'snapshot conferido', esperado: referencia.kits, diferencas: compararComReferencia(resumo, referencia) } : null;
+      return { formato: 'base-placards-cd', versao_formato: 1, configuracao: CONFIGURACAO_ALVO, fonte: fonte,
+        gerado_em: new Date().toISOString().slice(0, 19), resumo: resumo, abas_ignoradas: res.ignoradas,
+        exclusoes: exclusoes, comparacao_snapshot: comp, registros: registros };
+    });
+  }
+
+  /** Mesmo escape de placards_cd/construir_html.py:json_para_script. */
+  function jsonParaScript(dados) {
+    return JSON.stringify(dados).replace(/&/g, '\\u0026').replace(/</g, '\\u003c').replace(/>/g, '\\u003e')
+      .replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  }
+
   var api = {
     CONFIGURACAO_ALVO: CONFIGURACAO_ALVO, NUM_FOLHAS: NUM_FOLHAS, ABAS_ESCOPO: ABAS_ESCOPO, ROTULO_KIT: ROTULO_KIT,
     FORMATO_MANIFESTO: FORMATO_MANIFESTO, VERSAO_MANIFESTO: VERSAO_MANIFESTO, CODIGOS_DIVERGENCIA: CODIGOS_DIVERGENCIA,
@@ -726,10 +812,207 @@ legend { font-weight: 600; padding: 0 .3rem; }
     lerCSV: lerCSV, resumoKit: resumoKit, temDivergencia: temDivergencia, ErroLayout: ErroLayout,
     indexar: indexar, buscar: buscar, folhaAparece: folhaAparece,
     validarManifesto: validarManifesto, resolverDesenho: resolverDesenho, chaveDesenho: chaveDesenho,
-    origemAutorizada: origemAutorizada, urlHttpsValida: urlHttpsValida, letraColuna: letraColuna
+    origemAutorizada: origemAutorizada, urlHttpsValida: urlHttpsValida, letraColuna: letraColuna,
+    resolverAbas: resolverAbas, compararComReferencia: compararComReferencia, importarPlanilha: importarPlanilha, jsonParaScript: jsonParaScript
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else raiz.NucleoPlacards = api;
+})(this);
+</script>
+<script>/*
+ * Leitor mínimo de .xlsx/.xlsm no navegador, somente leitura.
+ * O arquivo é lido no próprio computador; nada é enviado. Macros nunca rodam.
+ * Lê os valores que o Excel salvou no arquivo (não recalcula fórmulas).
+ * Espelha placards_cd/leitores.py (formatar_valor) para que a página e o
+ * importador Python produzam os mesmos registros.
+ */
+(function (raiz) {
+  'use strict';
+
+  var ERROS = ['#N/A', '#REF!', '#VALUE!', '#DIV/0!', '#NAME?', '#NUM!', '#NULL!', '#SPILL!', '#CALC!'];
+  var FORMATOS_PADRAO = { 0: 'General', 1: '0', 2: '0.00', 3: '#,##0', 4: '#,##0.00', 9: '0%', 10: '0.00%', 11: '0.00E+00',
+    12: '# ?/?', 13: '# ??/??', 14: 'mm-dd-yy', 15: 'd-mmm-yy', 16: 'd-mmm', 17: 'mmm-yy', 18: 'h:mm AM/PM', 19: 'h:mm:ss AM/PM',
+    20: 'h:mm', 21: 'h:mm:ss', 22: 'm/d/yy h:mm', 37: '#,##0_);(#,##0)', 38: '#,##0_);[Red](#,##0)', 39: '#,##0.00_);(#,##0.00)',
+    40: '#,##0.00_);[Red](#,##0.00)', 45: 'mm:ss', 46: '[h]:mm:ss', 47: 'mmss.0', 48: '##0.0E+0', 49: '@' };
+
+  function ErroPlanilha(m) { this.name = 'ErroPlanilha'; this.message = m; }
+  ErroPlanilha.prototype = Object.create(Error.prototype);
+
+  // ------------------------------------------------------------------ ZIP
+  function lerZip(buf) {
+    var dv = new DataView(buf), n = buf.byteLength, fim = -1;
+    for (var i = n - 22; i >= Math.max(0, n - 65557); i--) { if (dv.getUint32(i, true) === 0x06054b50) { fim = i; break; } }
+    if (fim < 0) throw new ErroPlanilha('O arquivo não é um .xlsx válido. Se for .xls (Excel antigo), abra no Excel e salve como .xlsx.');
+    var total = dv.getUint16(fim + 10, true), p = dv.getUint32(fim + 16, true), entradas = {};
+    var dec = new TextDecoder('utf-8');
+    for (var k = 0; k < total; k++) {
+      if (dv.getUint32(p, true) !== 0x02014b50) throw new ErroPlanilha('Estrutura ZIP inválida no .xlsx.');
+      var metodo = dv.getUint16(p + 10, true), tam = dv.getUint32(p + 20, true);
+      var ln = dv.getUint16(p + 28, true), le = dv.getUint16(p + 30, true), lc = dv.getUint16(p + 32, true);
+      var local = dv.getUint32(p + 42, true);
+      var nome = dec.decode(new Uint8Array(buf, p + 46, ln));
+      entradas[nome] = { metodo: metodo, tam: tam, local: local };
+      p += 46 + ln + le + lc;
+    }
+    function extrair(nome) {
+      var e = entradas[nome];
+      if (!e) return Promise.resolve(null);
+      var ini = e.local + 30 + dv.getUint16(e.local + 26, true) + dv.getUint16(e.local + 28, true);
+      var dados = new Uint8Array(buf, ini, e.tam);
+      if (e.metodo === 0) return Promise.resolve(dec.decode(dados));
+      if (e.metodo !== 8) return Promise.reject(new ErroPlanilha('Compressão não suportada no .xlsx (' + e.metodo + ').'));
+      if (typeof DecompressionStream === 'undefined') return Promise.reject(new ErroPlanilha('Navegador sem suporte para ler .xlsx. Use o Edge ou o Chrome atualizado.'));
+      var fluxo = new Blob([dados]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new Response(fluxo).text();
+    }
+    return { nomes: Object.keys(entradas), extrair: extrair };
+  }
+
+  // ------------------------------------------------------------------ XML
+  function xml(texto) {
+    var d = new DOMParser().parseFromString(texto, 'application/xml');
+    if (d.getElementsByTagName('parsererror').length) throw new ErroPlanilha('XML inválido dentro do .xlsx.');
+    return d;
+  }
+  function tags(no, nome) { return Array.prototype.slice.call(no.getElementsByTagNameNS('*', nome)); }
+  function filhos(no, nome) { return Array.prototype.filter.call(no.childNodes, function (c) { return c.localName === nome; }); }
+  function attrId(no) {
+    for (var i = 0; i < no.attributes.length; i++) { var a = no.attributes[i]; if (a.localName === 'id' && a.prefix) return a.value; }
+    return no.getAttribute('r:id');
+  }
+  function textoSi(si) {
+    // Concatena os <t>, ignorando a guia fonética (<rPh>)
+    return tags(si, 't').filter(function (t) {
+      for (var p = t.parentNode; p && p !== si; p = p.parentNode) if (p.localName === 'rPh') return false;
+      return true;
+    }).map(function (t) { return t.textContent; }).join('');
+  }
+  function resolver(base, alvo) {
+    if (alvo.charAt(0) === '/') return alvo.slice(1);
+    var partes = base.split('/'); partes.pop();
+    alvo.split('/').forEach(function (s) { if (s === '..') partes.pop(); else if (s !== '.') partes.push(s); });
+    return partes.join('/');
+  }
+
+  // ------------------------------------------------------------------ formatação (= leitores.py)
+  var RE_LIT = '(?:"[^"]*"|\\\\.)*';
+  function formatoZeros(fmt) {
+    if (!fmt) return null;
+    var secao = fmt.split(';')[0].replace(/\[[^\]]*\]/g, '').trim();
+    var m = new RegExp('^(' + RE_LIT + ')(0+)(' + RE_LIT + ')$').exec(secao);
+    if (!m) return null;
+    function lit(t) { return (t.match(/"[^"]*"|\\./g) || []).map(function (a) { return a.charAt(0) === '"' ? a.slice(1, -1) : a.slice(1); }).join(''); }
+    return [lit(m[1]), m[2].length, lit(m[3])];
+  }
+  function casasDecimais(fmt) {
+    if (!fmt) return null;
+    var m = /^[#,]*0+\.(0+)$/.exec(fmt.split(';')[0].trim());
+    return m ? m[1].length : null;
+  }
+  function ehData(fmt) {
+    if (!fmt) return false;
+    var f = fmt.split(';')[0].replace(/".*?"|\[(?!hh?\]|mm?\]|ss?\])[^\]]*\]/g, '');
+    return /(^|[^_\\])[dmhysDMHYS]/.test(f);
+  }
+  function p2(n) { return (n < 10 ? '0' : '') + n; }
+  function dataExcel(v, base1904) {
+    var ms = Math.round((v - Math.floor(v)) * 86400000), dia = Math.floor(v);
+    if (!base1904 && dia > 0 && dia < 60) dia += 1;
+    var t = Date.UTC(base1904 ? 1904 : 1899, base1904 ? 0 : 11, base1904 ? 1 : 30) + dia * 86400000 + ms;
+    var d = new Date(t), data = d.getUTCFullYear() + '-' + p2(d.getUTCMonth() + 1) + '-' + p2(d.getUTCDate());
+    if (v >= 0 && v < 1) return p2(d.getUTCHours()) + ':' + p2(d.getUTCMinutes()) + ':' + p2(d.getUTCSeconds());
+    if (!ms) return data;
+    return data + ' ' + p2(d.getUTCHours()) + ':' + p2(d.getUTCMinutes()) + ':' + p2(d.getUTCSeconds());
+  }
+  function formatarNumero(v, fmt) {
+    var n = Math.round(v * 1e10) / 1e10, z = formatoZeros(fmt);
+    if (Number.isInteger(n)) {
+      if (z && n >= 0) { var s = String(n); while (s.length < z[1]) s = '0' + s; return z[0] + s + z[2]; }
+      return String(n);
+    }
+    var c = casasDecimais(fmt);
+    if (c !== null) return n.toFixed(c);
+    return String(n);
+  }
+
+  function colunaIndice(ref) {
+    var m = /^([A-Z]+)/.exec(ref || ''), n = 0;
+    if (!m) return -1;
+    for (var i = 0; i < m[1].length; i++) n = n * 26 + (m[1].charCodeAt(i) - 64);
+    return n - 1;
+  }
+
+  // ------------------------------------------------------------------ leitura
+  /** Lê o .xlsx: { abas: [nomes], ler(nome) -> Promise<linhas> }.
+   *  Cada linha é uma lista de { texto, formulaSemCache }. */
+  function abrir(buf) {
+    var zip = lerZip(buf);
+    return zip.extrair('_rels/.rels').then(function (rels) {
+      var wbPath = 'xl/workbook.xml';
+      if (rels) tags(xml(rels), 'Relationship').forEach(function (r) { if (/officeDocument$/.test(r.getAttribute('Type'))) wbPath = resolver('', r.getAttribute('Target')); });
+      var relsPath = wbPath.replace(/[^\/]+$/, '_rels/') + wbPath.split('/').pop() + '.rels';
+      return Promise.all([zip.extrair(wbPath), zip.extrair(relsPath)]).then(function (r) {
+        if (!r[0]) throw new ErroPlanilha('Planilha sem workbook.xml. O arquivo é mesmo um .xlsx?');
+        var wb = xml(r[0]), alvos = {};
+        if (r[1]) tags(xml(r[1]), 'Relationship').forEach(function (x) { alvos[x.getAttribute('Id')] = resolver(wbPath, x.getAttribute('Target')); });
+        var pr = tags(wb, 'workbookPr')[0], base1904 = !!(pr && /^(1|true)$/.test(pr.getAttribute('date1904') || ''));
+        var abas = tags(wb, 'sheet').map(function (s) { return { nome: s.getAttribute('name'), caminho: alvos[attrId(s)] }; });
+        var ssPath = null, stPath = null;
+        Object.keys(alvos).forEach(function (k) { if (/sharedStrings\.xml$/.test(alvos[k])) ssPath = alvos[k]; if (/styles\.xml$/.test(alvos[k])) stPath = alvos[k]; });
+        return Promise.all([zip.extrair(ssPath || 'xl/sharedStrings.xml'), zip.extrair(stPath || 'xl/styles.xml')]).then(function (r2) {
+          var strings = r2[0] ? tags(xml(r2[0]), 'si').map(textoSi) : [];
+          var formatos = {}, xfs = [];
+          if (r2[1]) {
+            var st = xml(r2[1]);
+            tags(st, 'numFmt').forEach(function (f) { formatos[f.getAttribute('numFmtId')] = f.getAttribute('formatCode'); });
+            var cx = tags(st, 'cellXfs')[0];
+            if (cx) xfs = filhos(cx, 'xf').map(function (x) { var id = x.getAttribute('numFmtId') || '0'; return formatos[id] !== undefined ? formatos[id] : (FORMATOS_PADRAO[id] || 'General'); });
+          }
+          return {
+            abas: abas.map(function (a) { return a.nome; }),
+            ler: function (nome) {
+              var aba = abas.filter(function (a) { return a.nome === nome; })[0];
+              if (!aba || !aba.caminho) return Promise.reject(new ErroPlanilha('Aba "' + nome + '" não encontrada no arquivo.'));
+              return zip.extrair(aba.caminho).then(function (t) { return lerAba(xml(t), strings, xfs, base1904); });
+            }
+          };
+        });
+      });
+    });
+  }
+
+  function lerAba(doc, strings, xfs, base1904) {
+    var linhas = [], proxLinha = 1;
+    tags(doc, 'row').forEach(function (row) {
+      var r = parseInt(row.getAttribute('r'), 10) || proxLinha;
+      proxLinha = r + 1;
+      var linha = [], proxCol = 0;
+      filhos(row, 'c').forEach(function (c) {
+        var col = c.getAttribute('r') ? colunaIndice(c.getAttribute('r')) : proxCol;
+        proxCol = col + 1;
+        var t = c.getAttribute('t') || 'n', vNo = filhos(c, 'v')[0], fNo = filhos(c, 'f')[0];
+        var v = vNo ? vNo.textContent : null, texto = null;
+        if (t === 's') texto = v === null ? null : (strings[parseInt(v, 10)] || '');
+        else if (t === 'inlineStr') { var is = filhos(c, 'is')[0]; texto = is ? textoSi(is) : null; }
+        else if (t === 'str' || t === 'e') texto = v;
+        else if (t === 'b') texto = v === null ? null : (v === '1' ? 'VERDADEIRO' : 'FALSO');
+        else if (v !== null && v !== '') {
+          var num = parseFloat(v), fmt = xfs[parseInt(c.getAttribute('s') || '0', 10)] || 'General';
+          texto = ehData(fmt) ? dataExcel(num, base1904) : formatarNumero(num, fmt);
+        }
+        if (texto !== null && t !== 'e') texto = texto.trim();
+        if (texto === '') texto = null;
+        linha[col] = { texto: texto, formulaSemCache: !!fNo && (v === null || v === '') };
+      });
+      linhas[r - 1] = linha;
+    });
+    for (var i = 0; i < linhas.length; i++) if (!linhas[i]) linhas[i] = [];
+    return linhas;
+  }
+
+  var api = { abrir: abrir, ErroPlanilha: ErroPlanilha, ERROS: ERROS, formatarNumero: formatarNumero };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else raiz.LeitorXlsx = api;
 })(this);
 </script>
 <script>/* Interface da consulta de placards CD. Todo texto vindo do Excel ou do
@@ -743,6 +1026,7 @@ legend { font-weight: 600; padding: 0 .3rem; }
     try { return JSON.parse($(id).textContent); } catch (e) { return null; }
   }
 
+  var HTML_ORIGINAL = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
   var config = lerJSON('dados-config') || {};
   var origens = (config.origens_pdf_autorizadas || []).slice();
   var estado = {
@@ -798,9 +1082,10 @@ legend { font-weight: 600; padding: 0 .3rem; }
 
   function renderEstadoBase() {
     var caixa = limpar($('estado-base')), b = estado.base;
+    $('salvar-consulta').disabled = !b;
     if (!b) {
       caixa.className = 'estado-base nao-carregada';
-      caixa.textContent = 'Base não carregada — este arquivo não contém dados de placards. Gere o HTML com o importador a partir da planilha (veja o README) ou importe CSV/TSV no painel abaixo.';
+      caixa.textContent = 'Base não carregada. Clique em “Carregar planilha (.xlsx)” e escolha a PLANILHA_PLACARD CD.xlsx.';
       $('busca').disabled = true;
       return;
     }
@@ -810,7 +1095,10 @@ legend { font-weight: 600; padding: 0 .3rem; }
       if (b.resumo[k]) partes.push(b.resumo[k].registros + ' registros ' + (k === 'PLASTICO' ? 'plásticos' : 'metálicos'));
       else partes.push('kit ' + rotuloKit(k).toLowerCase() + ' NÃO carregado');
     });
-    if (estado.origemBase === 'csv') {
+    if (estado.origemBase === 'planilha') {
+      caixa.className = 'estado-base csv';
+      caixa.appendChild(document.createTextNode('Base carregada agora de ' + b.fonte.arquivo + ' (lida neste computador; nada foi enviado). ' + partes.join(' · ') + '. Para não precisar carregar de novo, clique em “Salvar consulta com esta base”.'));
+    } else if (estado.origemBase === 'csv') {
       caixa.className = 'estado-base csv';
       caixa.appendChild(document.createTextNode('Base importada de CSV/TSV nesta sessão (' + b.fonte.arquivo + ') — não é a planilha de referência; recarregue a página para voltar à base incorporada. ' + partes.join(' · ') + '.'));
     } else {
@@ -1360,6 +1648,53 @@ legend { font-weight: 600; padding: 0 .3rem; }
       });
   }
 
+  // ---------------------------------------------------------------- planilha .xlsx
+  function hexSha(buf) {
+    if (!(window.crypto && crypto.subtle && crypto.subtle.digest)) return Promise.resolve('');
+    return crypto.subtle.digest('SHA-256', buf).then(hexDe).catch(function () { return ''; });
+  }
+
+  function carregarPlanilha(ev) {
+    var arq = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!arq) return;
+    if (/\.xls$/i.test(arq.name)) { avisar('“' + arq.name + '” é .xls (Excel antigo). Abra no Excel e use Salvar como → Pasta de Trabalho do Excel (.xlsx).', 'erro'); return; }
+    avisar('Lendo “' + arq.name + '”…', 'info');
+    arq.arrayBuffer().then(function (buf) {
+      return Promise.all([hexSha(buf), window.LeitorXlsx.abrir(buf)]).then(function (r) {
+        var fonte = { arquivo: arq.name, formato: arq.name.split('.').pop().toLowerCase(), sha256: r[0], tamanho_bytes: arq.size,
+          modificado_em: arq.lastModified ? new Date(arq.lastModified - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 19) : '' };
+        return N.importarPlanilha(r[1].abas, r[1].ler, fonte, config.referencia_snapshot);
+      });
+    }).then(function (base) {
+      definirBase(base, 'planilha');
+      var dif = base.comparacao_snapshot && base.comparacao_snapshot.diferencas.length;
+      avisar('Planilha carregada: ' + Object.keys(base.resumo).map(function (k) { return rotuloKit(k) + ' ' + base.resumo[k].registros; }).join(' · ') +
+        ' registros CD, ' + base.exclusoes.length + ' linhas excluídas.' + (dif ? ' Há ' + dif + ' diferença(s) em relação ao snapshot conferido — veja “Sobre a base”.' : ''), dif ? 'info' : 'ok');
+      $('busca').focus();
+    }).catch(function (e) {
+      avisar('Planilha não carregada. ' + (e && e.message ? e.message : String(e)), 'erro');
+    });
+  }
+
+  function salvarConsulta() {
+    if (!estado.base) return;
+    var html = HTML_ORIGINAL;
+    function trocar(id, dados) {
+      var ini = html.indexOf('id="' + id + '">');
+      if (ini < 0) throw new Error('marcador ' + id + ' ausente');
+      ini += ('id="' + id + '">').length;
+      var fim = html.indexOf('</' + 'script>', ini);
+      html = html.slice(0, ini) + N.jsonParaScript(dados) + html.slice(fim);
+    }
+    try { trocar('dados-base', estado.base); trocar('dados-manifesto', estado.manifesto); } catch (e) { avisar('Não foi possível salvar: ' + e.message, 'erro'); return; }
+    var a = el('a', { href: URL.createObjectURL(new Blob([html], { type: 'text/html' })), download: 'consulta-placards-cd.html' });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 10000);
+    estado.manifestoAlterado = false;
+    avisar('Consulta salva como “consulta-placards-cd.html” na pasta de downloads, com ' + estado.base.registros.length + ' registros embutidos. Guarde-a numa pasta autorizada e abra esse arquivo nas próximas vezes.', 'ok');
+  }
+
   // ---------------------------------------------------------------- sobre a base
   function renderFonte() {
     var c = limpar($('fonte-corpo')), b = estado.base;
@@ -1429,6 +1764,10 @@ legend { font-weight: 600; padding: 0 .3rem; }
     $('vis-fechar').addEventListener('click', fecharVisualizador);
     $('seletor-pdf').addEventListener('change', aoSelecionarPdf);
     $('arquivo-csv').addEventListener('change', importarArquivosCSV);
+    $('carregar-planilha').addEventListener('click', function () { $('arquivo-planilha').click(); });
+    $('arquivo-planilha').addEventListener('change', carregarPlanilha);
+    $('salvar-consulta').addEventListener('click', salvarConsulta);
+    window.ConsultaPlacards = { base: function () { return estado.base; } };
     document.addEventListener('keydown', navegarLista);
 
     var man = lerJSON('dados-manifesto');

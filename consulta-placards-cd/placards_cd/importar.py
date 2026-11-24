@@ -217,6 +217,10 @@ def executar(args: argparse.Namespace) -> int:
         manifesto = res["manifesto"]
 
     config = {"origens_pdf_autorizadas": origens, "gerado_em": dt.datetime.now().isoformat(timespec="seconds")}
+    ref_cfg = Path(args.referencia) if args.referencia else REFERENCIA_PADRAO
+    if ref_cfg.is_file() and not args.sem_referencia:
+        # Para a página comparar quando a planilha é carregada direto no navegador
+        config["referencia_snapshot"] = json.loads(ref_cfg.read_text(encoding="utf-8"))
     html = montar_html(base, manifesto, config)
     destino = saida / args.nome_html
     destino.write_text(html, encoding="utf-8")

@@ -24,6 +24,7 @@ def montar_html(base: dict | None, manifesto: dict | None, config: dict) -> str:
     trocas = {
         "/*__CSS__*/": (RAIZ_WEB / "estilo.css").read_text(encoding="utf-8"),
         "/*__NUCLEO__*/": (RAIZ_WEB / "nucleo.js").read_text(encoding="utf-8"),
+        "/*__XLSX__*/": (RAIZ_WEB / "xlsx.js").read_text(encoding="utf-8"),
         "/*__APP__*/": (RAIZ_WEB / "app.js").read_text(encoding="utf-8"),
         "__DADOS_BASE__": json_para_script(base),
         "__DADOS_MANIFESTO__": json_para_script(manifesto),

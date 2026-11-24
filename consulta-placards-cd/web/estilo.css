@@ -113,3 +113,5 @@ legend { font-weight: 600; padding: 0 .3rem; }
 .resumo .rot { display: block; font-size: .8rem; color: var(--suave); }
 .resumo b { font-size: 1.05rem; overflow-wrap: anywhere; }
 @media (max-width: 480px) { .resumo { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .resumo > div:first-child { grid-column: 1 / -1; } }
+.barra-base { display: flex; flex-wrap: wrap; gap: .5rem .75rem; align-items: center; margin-top: .6rem; }
+.barra-base .dica { margin: 0; }

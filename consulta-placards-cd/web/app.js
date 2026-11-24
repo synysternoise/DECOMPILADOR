@@ -9,6 +9,7 @@
     try { return JSON.parse($(id).textContent); } catch (e) { return null; }
   }
 
+  var HTML_ORIGINAL = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
   var config = lerJSON('dados-config') || {};
   var origens = (config.origens_pdf_autorizadas || []).slice();
   var estado = {
@@ -64,9 +65,10 @@
 
   function renderEstadoBase() {
     var caixa = limpar($('estado-base')), b = estado.base;
+    $('salvar-consulta').disabled = !b;
     if (!b) {
       caixa.className = 'estado-base nao-carregada';
-      caixa.textContent = 'Base não carregada — este arquivo não contém dados de placards. Gere o HTML com o importador a partir da planilha (veja o README) ou importe CSV/TSV no painel abaixo.';
+      caixa.textContent = 'Base não carregada. Clique em “Carregar planilha (.xlsx)” e escolha a PLANILHA_PLACARD CD.xlsx.';
       $('busca').disabled = true;
       return;
     }
@@ -76,7 +78,10 @@
       if (b.resumo[k]) partes.push(b.resumo[k].registros + ' registros ' + (k === 'PLASTICO' ? 'plásticos' : 'metálicos'));
       else partes.push('kit ' + rotuloKit(k).toLowerCase() + ' NÃO carregado');
     });
-    if (estado.origemBase === 'csv') {
+    if (estado.origemBase === 'planilha') {
+      caixa.className = 'estado-base csv';
+      caixa.appendChild(document.createTextNode('Base carregada agora de ' + b.fonte.arquivo + ' (lida neste computador; nada foi enviado). ' + partes.join(' · ') + '. Para não precisar carregar de novo, clique em “Salvar consulta com esta base”.'));
+    } else if (estado.origemBase === 'csv') {
       caixa.className = 'estado-base csv';
       caixa.appendChild(document.createTextNode('Base importada de CSV/TSV nesta sessão (' + b.fonte.arquivo + ') — não é a planilha de referência; recarregue a página para voltar à base incorporada. ' + partes.join(' · ') + '.'));
     } else {
@@ -626,6 +631,53 @@
       });
   }
 
+  // ---------------------------------------------------------------- planilha .xlsx
+  function hexSha(buf) {
+    if (!(window.crypto && crypto.subtle && crypto.subtle.digest)) return Promise.resolve('');
+    return crypto.subtle.digest('SHA-256', buf).then(hexDe).catch(function () { return ''; });
+  }
+
+  function carregarPlanilha(ev) {
+    var arq = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!arq) return;
+    if (/\.xls$/i.test(arq.name)) { avisar('“' + arq.name + '” é .xls (Excel antigo). Abra no Excel e use Salvar como → Pasta de Trabalho do Excel (.xlsx).', 'erro'); return; }
+    avisar('Lendo “' + arq.name + '”…', 'info');
+    arq.arrayBuffer().then(function (buf) {
+      return Promise.all([hexSha(buf), window.LeitorXlsx.abrir(buf)]).then(function (r) {
+        var fonte = { arquivo: arq.name, formato: arq.name.split('.').pop().toLowerCase(), sha256: r[0], tamanho_bytes: arq.size,
+          modificado_em: arq.lastModified ? new Date(arq.lastModified - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 19) : '' };
+        return N.importarPlanilha(r[1].abas, r[1].ler, fonte, config.referencia_snapshot);
+      });
+    }).then(function (base) {
+      definirBase(base, 'planilha');
+      var dif = base.comparacao_snapshot && base.comparacao_snapshot.diferencas.length;
+      avisar('Planilha carregada: ' + Object.keys(base.resumo).map(function (k) { return rotuloKit(k) + ' ' + base.resumo[k].registros; }).join(' · ') +
+        ' registros CD, ' + base.exclusoes.length + ' linhas excluídas.' + (dif ? ' Há ' + dif + ' diferença(s) em relação ao snapshot conferido — veja “Sobre a base”.' : ''), dif ? 'info' : 'ok');
+      $('busca').focus();
+    }).catch(function (e) {
+      avisar('Planilha não carregada. ' + (e && e.message ? e.message : String(e)), 'erro');
+    });
+  }
+
+  function salvarConsulta() {
+    if (!estado.base) return;
+    var html = HTML_ORIGINAL;
+    function trocar(id, dados) {
+      var ini = html.indexOf('id="' + id + '">');
+      if (ini < 0) throw new Error('marcador ' + id + ' ausente');
+      ini += ('id="' + id + '">').length;
+      var fim = html.indexOf('</' + 'script>', ini);
+      html = html.slice(0, ini) + N.jsonParaScript(dados) + html.slice(fim);
+    }
+    try { trocar('dados-base', estado.base); trocar('dados-manifesto', estado.manifesto); } catch (e) { avisar('Não foi possível salvar: ' + e.message, 'erro'); return; }
+    var a = el('a', { href: URL.createObjectURL(new Blob([html], { type: 'text/html' })), download: 'consulta-placards-cd.html' });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 10000);
+    estado.manifestoAlterado = false;
+    avisar('Consulta salva como “consulta-placards-cd.html” na pasta de downloads, com ' + estado.base.registros.length + ' registros embutidos. Guarde-a numa pasta autorizada e abra esse arquivo nas próximas vezes.', 'ok');
+  }
+
   // ---------------------------------------------------------------- sobre a base
   function renderFonte() {
     var c = limpar($('fonte-corpo')), b = estado.base;
@@ -695,6 +747,10 @@
     $('vis-fechar').addEventListener('click', fecharVisualizador);
     $('seletor-pdf').addEventListener('change', aoSelecionarPdf);
     $('arquivo-csv').addEventListener('change', importarArquivosCSV);
+    $('carregar-planilha').addEventListener('click', function () { $('arquivo-planilha').click(); });
+    $('arquivo-planilha').addEventListener('change', carregarPlanilha);
+    $('salvar-consulta').addEventListener('click', salvarConsulta);
+    window.ConsultaPlacards = { base: function () { return estado.base; } };
     document.addEventListener('keydown', navegarLista);
 
     var man = lerJSON('dados-manifesto');

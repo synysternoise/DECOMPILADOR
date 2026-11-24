@@ -128,7 +128,7 @@
 
   // ------------------------------------------------------------- registros
 
-  function calcularAvisos(reg, errosColunas) {
+  function calcularAvisos(reg, errosColunas, semCache) {
     var avisos = [];
     function add(c, m) { avisos.push({ codigo: c, mensagem: m }); }
     if (!reg.pn_novo) add('SEM_PN_NOVO', 'Sem PN novo (coluna A vazia).');
@@ -149,10 +149,13 @@
       add('TOTAL_DIF_SOMA', 'Total registrado (' + fmtNum(total) + ') difere da soma das folhas (' + fmtNum(soma) + ').');
     if (qty !== null && total !== null && !iguais(qty, total))
       add('QTY_DIF_TOTAL', 'QTY prevista (' + fmtNum(qty) + ') difere do Total registrado (' + fmtNum(total) + ').');
+    (semCache || []).forEach(function (col) {
+      add('FORMULA_SEM_CACHE', 'Coluna ' + letraColuna(col) + ' tem fórmula sem valor calculado salvo; abra e salve a planilha no Excel.');
+    });
     return avisos;
   }
 
-  function montarRegistro(kit, aba, linha, t, rotuloC, topoNorm, cfg, errosColunas) {
+  function montarRegistro(kit, aba, linha, t, rotuloC, topoNorm, cfg, errosColunas, semCache) {
     var folhas = [];
     for (var k = 0; k < NUM_FOLHAS; k++) {
       var texto = t[COL.SH1 + k];
@@ -175,7 +178,7 @@
       total_numero: numero(t[COL.AF]),
       provisorio: ehProvisorio(t[COL.C])
     };
-    reg.avisos = calcularAvisos(reg, errosColunas || []);
+    reg.avisos = calcularAvisos(reg, errosColunas || [], semCache || []);
     return reg;
   }
 
@@ -193,7 +196,7 @@
   ErroLayout.prototype = Object.create(Error.prototype);
 
   /** Importa uma aba (matriz de textos, como num CSV exportado). */
-  function importarAba(kit, aba, linhas) {
+  function importarAba(kit, aba, linhas, semCacheLinhas) {
     var textos = linhas.map(textosLinha);
     var idx = -1;
     for (var i = 0; i < Math.min(MAX_LINHA_CABECALHO, textos.length); i++) { if (ehLinhaCabecalho(textos[i])) { idx = i; break; } }
@@ -217,7 +220,8 @@
       if (!t[COL.A] && !t[COL.C]) { excluir('sem PN novo (A) e sem PN antigo/CDPL (C)'); continue; }
       var errosCol = [];
       t.forEach(function (v, k) { if (v !== null && ehErroExcel(v)) errosCol.push([k, v]); });
-      registros.push(montarRegistro(kit, aba, numLinha, t, cab[COL.C], ext[1], cfg, errosCol));
+      var semCache = semCacheLinhas && semCacheLinhas[r] ? semCacheLinhas[r].filter(function (k) { return k < NUM_COLUNAS; }) : [];
+      registros.push(montarRegistro(kit, aba, numLinha, t, cab[COL.C], ext[1], cfg, errosCol, semCache));
     }
     return { kit: kit, aba: aba, linha_cabecalho: idx + 1, avisos_layout: lay.avisos, registros: registros, exclusoes: exclusoes, linhas_vazias: vazias };
   }
@@ -513,6 +517,80 @@
     return r;
   }
 
+  // ------------------------------------------------------------- planilha inteira
+
+  function normalizarNomeAba(nome) { return normalizarCabecalho(nome).replace(/[\s,]+/g, ''); }
+
+  function resolverAbas(nomes) {
+    var porNorma = {}, encontradas = {}, faltando = [];
+    nomes.forEach(function (n) { porNorma[normalizarNomeAba(n)] = n; });
+    Object.keys(ABAS_ESCOPO).forEach(function (kit) {
+      var esperado = ABAS_ESCOPO[kit];
+      if (nomes.indexOf(esperado) >= 0) encontradas[kit] = esperado;
+      else if (porNorma[normalizarNomeAba(esperado)]) encontradas[kit] = porNorma[normalizarNomeAba(esperado)];
+      else faltando.push(esperado);
+    });
+    if (faltando.length) throw new ErroLayout('Aba(s) não encontrada(s): ' + faltando.join(', ') + '. Abas do arquivo: ' + nomes.join(', '));
+    var usadas = Object.keys(encontradas).map(function (k) { return encontradas[k]; });
+    var ignoradas = nomes.filter(function (n) { return usadas.indexOf(n) < 0; })
+      .map(function (n) { return { aba: n, motivo: 'fora do escopo (somente PLACARD, KIT PLASTIC/METALLIC)' }; });
+    return { abas: encontradas, ignoradas: ignoradas };
+  }
+
+  function compararComReferencia(resumo, ref) {
+    var dif = [];
+    Object.keys((ref && ref.kits) || {}).forEach(function (kit) {
+      var esp = ref.kits[kit], obt = resumo[kit];
+      if (!obt) { dif.push(kit + ': aba não importada.'); return; }
+      ['registros', 'sem_pn_novo'].forEach(function (c) {
+        if (esp[c] !== undefined && esp[c] !== obt[c]) dif.push(kit + '.' + c + ': esperado ' + esp[c] + ', obtido ' + obt[c] + '.');
+      });
+      if (esp.topo !== undefined) {
+        var topos = Object.keys(obt.topos || {}).sort();
+        if (!(topos.length === 1 && topos[0] === esp.topo))
+          dif.push(kit + '.topo: esperado só ' + esp.topo + ', obtido [' + topos.map(function (t) { return "'" + t + "'"; }).join(', ') + '].');
+      }
+    });
+    return dif;
+  }
+
+  /**
+   * Monta a base a partir de uma planilha aberta (nomes das abas + leitor).
+   * lerAba(nome) -> Promise<linhas>, cada linha uma lista de {texto, formulaSemCache}.
+   */
+  function importarPlanilha(nomesAbas, lerAba, fonte, referencia) {
+    var res;
+    try { res = resolverAbas(nomesAbas); } catch (e) { return Promise.reject(e); }
+    var kits = Object.keys(res.abas);
+    return Promise.all(kits.map(function (k) { return lerAba(res.abas[k]); })).then(function (dados) {
+      var resultados = kits.map(function (kit, i) {
+        var textos = [], semCache = [];
+        dados[i].forEach(function (linha, r) {
+          var t = [], s = [];
+          for (var c = 0; c < linha.length; c++) {
+            var cel = linha[c];
+            t.push(cel ? cel.texto : null);
+            if (cel && cel.formulaSemCache) s.push(c);
+          }
+          textos.push(t); semCache.push(s);
+        });
+        return importarAba(kit, res.abas[kit], textos, semCache);
+      });
+      var resumo = {}, registros = [], exclusoes = [];
+      resultados.forEach(function (r) { resumo[r.kit] = resumoKit(r); registros = registros.concat(r.registros); exclusoes = exclusoes.concat(r.exclusoes); });
+      var comp = referencia && referencia.kits ? { referencia: 'snapshot conferido', esperado: referencia.kits, diferencas: compararComReferencia(resumo, referencia) } : null;
+      return { formato: 'base-placards-cd', versao_formato: 1, configuracao: CONFIGURACAO_ALVO, fonte: fonte,
+        gerado_em: new Date().toISOString().slice(0, 19), resumo: resumo, abas_ignoradas: res.ignoradas,
+        exclusoes: exclusoes, comparacao_snapshot: comp, registros: registros };
+    });
+  }
+
+  /** Mesmo escape de placards_cd/construir_html.py:json_para_script. */
+  function jsonParaScript(dados) {
+    return JSON.stringify(dados).replace(/&/g, '\\u0026').replace(/</g, '\\u003c').replace(/>/g, '\\u003e')
+      .replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  }
+
   var api = {
     CONFIGURACAO_ALVO: CONFIGURACAO_ALVO, NUM_FOLHAS: NUM_FOLHAS, ABAS_ESCOPO: ABAS_ESCOPO, ROTULO_KIT: ROTULO_KIT,
     FORMATO_MANIFESTO: FORMATO_MANIFESTO, VERSAO_MANIFESTO: VERSAO_MANIFESTO, CODIGOS_DIVERGENCIA: CODIGOS_DIVERGENCIA,
@@ -522,7 +600,8 @@
     lerCSV: lerCSV, resumoKit: resumoKit, temDivergencia: temDivergencia, ErroLayout: ErroLayout,
     indexar: indexar, buscar: buscar, folhaAparece: folhaAparece,
     validarManifesto: validarManifesto, resolverDesenho: resolverDesenho, chaveDesenho: chaveDesenho,
-    origemAutorizada: origemAutorizada, urlHttpsValida: urlHttpsValida, letraColuna: letraColuna
+    origemAutorizada: origemAutorizada, urlHttpsValida: urlHttpsValida, letraColuna: letraColuna,
+    resolverAbas: resolverAbas, compararComReferencia: compararComReferencia, importarPlanilha: importarPlanilha, jsonParaScript: jsonParaScript
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else raiz.NucleoPlacards = api;
