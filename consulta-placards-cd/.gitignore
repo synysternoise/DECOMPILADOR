@@ -1,13 +1,8 @@
-# Dados reais e artefatos gerados não são versionados nem publicados por padrão
-dist/
+__pycache__/
+.pytest_cache/
 *.xlsx
 *.xlsm
 *.xls
-*.pdf
-*.csv
-*.tsv
-base_placards_cd.json
-relatorio_importacao.*
-manifesto-desenhos-placards-*.json
-__pycache__/
-.pytest_cache/
+desenhos/**/*.pdf
+relatorio_ultima_publicacao.md
+*.tmp

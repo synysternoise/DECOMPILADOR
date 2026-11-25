@@ -1,0 +1,12 @@
+{
+  "planilha": "../PLANILHA_PLACARD CD.xlsx",
+  "pasta_desenhos": "../desenhos",
+  "arquivo_consulta": "../Consulta de Placards.html",
+  "links_absolutos": false,
+  "desenvolvedor": {
+    "nome": "",
+    "contato": "",
+    "iniciais": ""
+  },
+  "snapshot_referencia": "snapshot_conferido.json"
+}

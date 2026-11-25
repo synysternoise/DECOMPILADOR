@@ -1,8 +1,0 @@
-# Importador
-openpyxl>=3.1
-xlrd>=2.0        # somente para .xls legado (opcional)
-pypdf>=4.0       # somente para validar_manifesto --pasta-pdf
-# Testes
-pytest>=8
-reportlab>=4     # gera o PDF sintético
-playwright>=1.40 # teste da interface (python -m playwright install chromium)

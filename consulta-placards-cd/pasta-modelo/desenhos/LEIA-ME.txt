@@ -1,0 +1,8 @@
+Coloque aqui os desenhos 2D em PDF.
+
+O nome do arquivo deve ser o part number do placard, por exemplo:
+  171-50557-021.pdf
+
+Placard sem PN novo: use o CDPL como nome (ex.: CDPL568-201.pdf).
+Pode usar subpastas. Depois de colocar PDFs novos, rode
+_adm\ATUALIZAR CONSULTA.bat para a consulta passar a mostrar o botão.

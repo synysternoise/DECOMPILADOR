@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consulta de Placards CD</title>
+<style>/*__CSS__*/</style>
+</head>
+<body>
+<section class="hero">
+  <div class="wrap">
+    <div class="marca"><h1>Consulta de <strong>Placards</strong></h1><span class="cfg">Configuração CD</span></div>
+    <div class="meta" id="meta"></div>
+    <div class="planta" aria-hidden="true"><svg id="svg" viewBox="40 0 1120 300" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="busca-area">
+      <label class="busca">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7"/><path d="M16 16l5 5"/></svg>
+        <input id="q" type="search" placeholder="Pesquisar por PN novo, CDPL ou nome do placard" aria-label="Pesquisar placard" autocomplete="off" spellcheck="false">
+        <kbd>sem hífen também</kbd>
+      </label>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="barra">
+    <div><span class="rot-seg">Idioma do título</span><div class="seg" id="idiomas" role="group" aria-label="Idioma do título"></div></div>
+    <div class="contagem" id="contagem" role="status" aria-live="polite"></div>
+  </div>
+  <div class="grade" id="grade"></div>
+</main>
+
+<footer>
+  <div class="wrap dev">
+    <div class="quem"><div class="sig" aria-hidden="true" id="dev-sig">DEV</div><p id="dev-txt"></p></div>
+    <div class="ver" id="versao"></div>
+  </div>
+</footer>
+
+<script type="application/json" id="dados">__DADOS__</script>
+<script>/*__AVIAO__*/</script>
+<script>/*__BUSCA__*/</script>
+<script>/*__APP__*/</script>
+</body>
+</html>
